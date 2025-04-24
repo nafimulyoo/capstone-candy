@@ -1,5 +1,5 @@
 
-# Database Architecture Documentation
+# CANDY - Database Architecture Documentation
 
 ## Overview
 This document describes the Firestore database structure for the CANDY AI Assistant admin system, including collections, data models, and example records.

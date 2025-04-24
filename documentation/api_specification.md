@@ -1,4 +1,4 @@
-# CANDY Admin Dashboard API Specification
+# CANDY - API Specification
 
 ## Base URL
 `https://api.candy-admin.example.com/v1`
