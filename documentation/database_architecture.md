@@ -126,9 +126,3 @@ interface LLMSettings {
 
 2. **Singleton**:
    - FirestoreDatabase to LLMSettings (1:1)
-
-## Indexing Recommendations
-1. `admins.email`: For login queries
-2. `chat_sessions.timestamp`: For time-range searches
-3. `chat_sessions.topic`: For topic analytics
-4. `chat_history.timestamp`: For message ordering
