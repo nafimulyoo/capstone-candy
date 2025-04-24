@@ -1,0 +1,34 @@
+flowchart TD
+    subgraph Frontend[Next.js Frontend]
+        A[Home Page] -->|Public| B[Main Pages]
+        A[Home Page] -->|Auth| W[Admin Login]
+        B[Main Pages] --> Z[Home Page]
+        B[Main Pages] --> Y[Chatbot]
+        B[Main Pages] --> X[Contact Us]
+        
+        A -->|Admin Login| C[Admin Dashboard]
+        C --> F[LLM Settings]
+        C --> D[Analytics Dashboard]
+        C --> E[Chat History]
+        
+    end
+
+    subgraph Backend[FastAPI Backend]
+        M[Chatbot API] --> N[Vertex AI]
+        G[Admin Auth API] --> H[Firebase Auth]
+        I[Analytics API] --> J[Firestore Queries]
+        K[Chat History API] --> J
+        L[LLM Settings API]
+        
+    end
+
+    Y[Chatbot] -->|API Calls| M[Chatbot API]
+    W[Admin Login] -->|API Calls| G[Admin Auth API]
+    D[Analytics Dashboard] -->|API Calls| I[Analytics API]
+    E[Chat History] -->|API Calls| K[Chat History API]
+    F[LLM Settings] -->|API Calls| L[LLM Settings API]
+    J[Firestore Quesries] -->|Database Operations| Firestore[(Firestore Database)]
+    N -->|AI Requests| VertexAI[(Vertex AI)]
+    N -->|Get Knowledge| GD[(Google Drive)]
+    L --> |Store Knowledge| GD
+    L[LLM Settings API] --> J

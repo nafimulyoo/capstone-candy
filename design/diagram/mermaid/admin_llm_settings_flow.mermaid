@@ -1,0 +1,15 @@
+sequenceDiagram
+    Admin->>Frontend: Navigates to LLM Settings
+    Frontend->>Backend: GET /llm-settings
+    Backend->>Firestore: Fetch current settings
+    Firestore->>Backend: Return 
+    
+    Backend->>Frontend: Return settings
+    Frontend->>Admin: Shows editable form
+
+    Admin->>Frontend: Updates settings
+    Frontend->>Backend: PUT /llm-settings 
+    Backend->>Firestore: Update document
+
+    Backend->>Frontend: Return 200 OK
+    Frontend->>Admin: Show success toast

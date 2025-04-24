@@ -1,0 +1,47 @@
+classDiagram
+
+    class FirestoreDatabase {
+        +Map~String, Admin~ admins
+        +Map~String, ChatSession~ chat_sessions
+        +LLMSettings llm_settings
+    }
+
+    class Admin {
+        +String id
+        +String email
+        +String nama
+        +String password
+    }
+
+    class ChatSession {
+        +String id
+        +String timestamp
+        +String topic
+        +Boolean userClickToAction
+        +String name
+        +String email
+        +String phone
+        +ChatMessage[] chat_history
+    }
+
+    class ChatMessage {
+        +String role
+        +String message
+        +String timestamp 
+        +Boolean link_to_contact 
+        +String feedback 
+        +Number response_time 
+    }
+
+    class LLMSettings {
+        +String prompt_template
+        +String model
+        +Number temperature
+        +Number top_k
+        +String google_drive_link
+    }
+
+    FirestoreDatabase "1" *-- "*" Admin : contains (one-to-many)
+    FirestoreDatabase "1" *-- "*" ChatSession : contains (one-to-many)
+    FirestoreDatabase "1" *-- "1" LLMSettings : contains (one-to-one)
+    ChatSession "1" *-- "*" ChatMessage : contains (one-to-many)

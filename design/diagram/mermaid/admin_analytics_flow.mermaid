@@ -1,0 +1,6 @@
+sequenceDiagram
+    Admin->>Frontend: Requests analytics
+    Frontend->>Backend: GET /analytics/*
+    Backend->>Firestore: Query data
+    Backend->>Backend: Compute metrics
+    Backend->>Frontend: Return analytics data

@@ -1,0 +1,14 @@
+sequenceDiagram
+    User->>Frontend: Sends message
+    Frontend->>Backend: POST /chat (message, history)
+    Backend->>Firestore: Get LLM Config
+    Firestore->>Backend: Return LLM Config
+    Backend->>Vertex AI: Forward message and history with LLM config
+    Vertex AI->>Google Drive: Get Knowledge
+    Google Drive->>Vertex AI: Return Knowledge
+    Vertex AI->>Backend: Response
+    
+   
+    Backend->>Frontend: Return response
+    Frontend->>Backend: Save session when closed
+    Backend->>Firestore: Save session when closed
