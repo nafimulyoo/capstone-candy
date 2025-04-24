@@ -12,7 +12,7 @@ The CANDY AI Assistant is a chatbot application with an admin dashboard. It cons
 ---
 
 ## **2. Architecture Diagram**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/diagram/system_architecture.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/system_architecture.svg)
 
 ---
 
@@ -66,18 +66,18 @@ Please refer to the [database architecture documentation](./database_architectur
 
 ## **4. Data Flow**
 ### **4.1 User Chat Flow**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/diagram/user_chat_flow.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/user_chat_flow.svg)
 
 
 ### **4.2 Admin Analytics Flow**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/diagram/admin_analytics_flow.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/admin_analytics_flow.svg)
 
 
 ### **4.3 Admin Chat History & Session Flow**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/diagram/admin_chat_history_flow.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/admin_chat_history_flow.svg)
 
 ### **4.4 Admin LLM Settings Edit Flow**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/diagram/admin_llm_settings_flow.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/admin_llm_settings_flow.svg)
 ---
 
 ## **5. Deployment Architecture**
@@ -92,23 +92,23 @@ Please refer to the [database architecture documentation](./database_architectur
 ### Mockups are deployed on Vercel and can be accessed at [CANDY AI Assistant Mockups](https://capstone-product-chatbot.vercel.app/)
 
 ### **Home Page**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/home_page.png)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/home_page.png)
 
 ### **Contact Us Page**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/contact_us_page.png)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/contact_us_page.png)
 
 ### **Chatbot Page**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/chatbot_page.png)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/chatbot_page.png)
 
 ### **Admin Login Page**
 
 ### **Admin Dashboard**
 #### **Analytics Page**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/analytics_page.png)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/analytics_page.png)
 
 #### **Chat History Page**
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/chat_history_page.png)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/chat_history_page.png)
 
 #### **LLM Settings Page**
-~![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/design/image/llm_settings_page.png)
+~![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/image/llm_settings_page.png)
 
