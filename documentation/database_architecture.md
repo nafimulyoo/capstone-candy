@@ -7,7 +7,7 @@ This document describes the Firestore database structure for the CANDY AI Assist
 ## Database Structure
 The database is structured into several collections, each serving a specific purpose. The main collections are:
 <!-- import image from image/data_architecture/png -->
-![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/design/data_architecture.svg)
+![image](https://raw.githubusercontent.com/nafimulyoo/capstone-candy/documentation/diagram/data_architecture.svg)
 
 ## Collections
 
