@@ -10,5 +10,6 @@ sequenceDiagram
     
    
     Backend->>Frontend: Return response
+    Frontend->>User: Show response bubble
     Frontend->>Backend: Save session when closed
     Backend->>Firestore: Save session when closed
