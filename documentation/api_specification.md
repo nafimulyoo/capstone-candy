@@ -1,5 +1,7 @@
 # **🍬 CANDY - API Specification**
 
+Last updated: 04-25-2025, 10.45 AM
+
 ## Base URL
 `https://api.candy-admin.example.com/v1`
 

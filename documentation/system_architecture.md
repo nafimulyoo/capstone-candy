@@ -1,5 +1,7 @@
 # **🍬 CANDY - Software Architecture Documentation**
 
+Last updated: 04-25-2025, 10.45 AM
+
 ## **1. System Overview**
 The CANDY AI Assistant is a chatbot application with an admin dashboard. It consists of:
 - **Frontend**: Next.js (React) for UI
