@@ -24,6 +24,8 @@ The CANDY AI Assistant is a chatbot application with an admin dashboard. It cons
 |------|-------------|
 | **Home** | Landing page with chatbot access and admin login |
 | **Chatbot** | User-facing Q&A interface (session resets on exit) |
+| **Contact Us** | Contact form for user inquiries |
+| **Admin Login** | Authentication page for admin access |
 | **Admin Dashboard** | Protected routes for admin management |
 | - **Analytics** | Charts for sessions, satisfaction, CTA clicks |
 | - **Chat History** | Filterable/sortable chat logs |
