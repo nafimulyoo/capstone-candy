@@ -4,7 +4,7 @@
 Last updated: 25-04-2025, 10.45 AM
 
 ## Overview
-This document describes the Firestore database structure for the CANDY AI Assistant admin system, including collections, data models, and example records.
+This document describes the Firestore database structure for the CANDY system, including collections, data models, and example records.
 
 ## Database Structure
 The database is structured into several collections, each serving a specific purpose. The main collections are:
