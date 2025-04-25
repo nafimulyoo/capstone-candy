@@ -199,6 +199,22 @@ Same format as `/analytics/sessions`
 }
 ```
 
+### POST /llm-settings/upload
+**Request:**
+```json
+{
+  "file": "base64_encoded_file_content",
+  "filename": "knowledge_base.pdf"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "File uploaded successfully",
+  "file_id": "file_001_unique_id"
+}
+```
 ---
 ## 5. Chatbot API
 ### POST /chat/ask
