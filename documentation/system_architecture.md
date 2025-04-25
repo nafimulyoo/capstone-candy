@@ -27,26 +27,13 @@ The CANDY AI Assistant is a chatbot application with an admin dashboard. It cons
 | **Admin Dashboard** | Protected routes for admin management |
 | - **Analytics** | Charts for sessions, satisfaction, CTA clicks |
 | - **Chat History** | Filterable/sortable chat logs |
-| - **LLM Settings** | Configure AI model parameters |
-
-#### **Key Features**
-- **Session Management**: Chatbot resets on page exit
-- **Admin Auth**: JWT-based protected routes
-- **Real-time Updates**: Socket.io for live analytics
+| - **LLM Settings** | Configure AI model parameters and upload files for knowledge base |
 
 ---
 
 ### **3.2 Backend (FastAPI)**
 #### **API Endpoints**
 Please refer to the [API Specification](./api_specification.md) for detailed endpoint descriptions.
-
-#### **Services**
-| Service | Description |
-|---------|-------------|
-| **Auth Service** | Handles JWT auth & admin validation |
-| **Analytics Service** | Computes metrics from Firestore |
-| **Chat Service** | Manages session history |
-| **LLM Service** | Updates Vertex AI parameters |
 
 ---
 
