@@ -8,7 +8,7 @@ This document describes the Firestore database structure for the CANDY system, i
 
 ## Database Structure
 The database is structured into several collections, each serving a specific purpose. The main collections are:
-<!-- import image from image/data_architecture/png -->
+
 ![Database Structure](/documentation/diagram/data_architecture.svg)
 
 ## Collections

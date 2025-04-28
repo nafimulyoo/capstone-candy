@@ -83,23 +83,28 @@ Please refer to the [database architecture documentation](./database_architectur
 ### Mockups are deployed on Vercel and can be accessed at [CANDY AI Assistant Mockups](https://capstone-product-chatbot.vercel.app/)
 
 ### **Home Page**
-![image](/documentation/image/home_page.png)
+![Home Page](/documentation/screenshots/home_page.jpeg)
 
 ### **Contact Us Page**
-![image](/documentation/image/contact_us_page.png)
+![Contact Us](/documentation/screenshots/contact_us.jpeg)
 
 ### **Chatbot Page**
-![image](/documentation/image/chatbot_page.png)
+![Chatbot Page 1](/documentation/screenshots/chatbot_1.jpeg)
+![Chatbot Page 2](/documentation/screenshots/chatbot_2.jpeg)
+![Chatbot Page 3](/documentation/screenshots/chatbot_3.jpeg)
 
 ### **Admin Login Page**
+![Admin Login Page](/documentation/screenshots/admin_login_page.jpeg)
 
 ### **Admin Dashboard**
 #### **Analytics Page**
-![image](/documentation/image/analytics_page.png)
+![image](/documentation/screenshots/analytics.jpeg)
 
 #### **Chat History Page**
-![image](/documentation/image/chat_history_page.png)
+![image](/documentation/screenshots/chat_history.jpeg)
+![image](/documentation/screenshots/chat_session.jpeg)
 
 #### **LLM Settings Page**
-~![image](/documentation/image/llm_settings_page.png)
+![image](/documentation/screenshots/llm_settings.jpeg)
+
 
