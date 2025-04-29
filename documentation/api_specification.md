@@ -63,7 +63,7 @@ All endpoints (except login) require `Authorization: Bearer <token>`
 }
 ```
 
-### GET /analytics/response-times?range=daily|monthly|yearly
+### GET /analytics/response-times?range=daily|monthly|yearly&start=YYYY-MM-DD&end=YYYY-MM-DD
 **Response:**
 ```json
 {
@@ -74,7 +74,7 @@ All endpoints (except login) require `Authorization: Bearer <token>`
 }
 ```
 
-### GET /analytics/topics
+### GET /analytics/topics?range=daily|monthly|yearly&start=YYYY-MM-DD&end=YYYY-MM-DD
 **Response:**
 ```json
 {
@@ -86,11 +86,11 @@ All endpoints (except login) require `Authorization: Bearer <token>`
 }
 ```
 
-### GET /analytics/cta-clicks?range=daily|monthly|yearly
+### GET /analytics/cta-clicks?range=daily|monthly|yearly&start=YYYY-MM-DD&end=YYYY-MM-DD
 **Response:**
 Same format as `/analytics/sessions`
 
-### GET /analytics/summary
+### GET /analytics/summary?range=daily|monthly|yearly&start=YYYY-MM-DD&end=YYYY-MM-DD
 **Response:**
 ```json
 {
