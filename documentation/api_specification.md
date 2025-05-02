@@ -1,9 +1,7 @@
 # **🍬 CANDY - API Specification**
 
-Last updated: 25-04-2025, 10.45 AM
+Last updated: 05-02-2025, 13.00 
 
-## Base URL
-`https://api.candy-admin.example.com/v1`
 
 ## Authentication
 All endpoints (except login) require `Authorization: Bearer <token>`

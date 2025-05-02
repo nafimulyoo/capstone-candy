@@ -102,6 +102,7 @@ interface LLMSettings {
   prompt_template: string;  // System prompt
   model: string;           // Model identifier
   temperature: number;     // 0-1 creativity
+  max_token: number;   
   top_k: number;           // Sampling parameter
   google_drive_link: string; // Knowledge source
 }

@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Users,
-  MessageSquare,
   LogOut,
   Search,
   Eye,
@@ -18,10 +16,12 @@ import {
   Trash2,
   FileText,
   FilePlus,
-  Calendar,
   Download,
   MousePointer,
   ThumbsUp,
+  ArrowDown,
+  ArrowUp,
+  MessageSquare,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
@@ -42,142 +42,147 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+
+import { addDays, format, parseISO } from "date-fns"
+import { CalendarIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
+
+
+import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
 
 // Dummy data for user activity chart
 const userActivityData = [
-  { date: "Apr 1, 2023", users: 120 },
-  { date: "Apr 2, 2023", users: 132 },
-  { date: "Apr 3, 2023", users: 145 },
-  { date: "Apr 4, 2023", users: 140 },
-  { date: "Apr 5, 2023", users: 158 },
-  { date: "Apr 6, 2023", users: 172 },
-  { date: "Apr 7, 2023", users: 190 },
-  { date: "Apr 8, 2023", users: 185 },
-  { date: "Apr 9, 2023", users: 192 },
-  { date: "Apr 10, 2023", users: 210 },
-  { date: "Apr 11, 2023", users: 215 },
-  { date: "Apr 12, 2023", users: 234 },
-  { date: "Apr 13, 2023", users: 256 },
-  { date: "Apr 14, 2023", users: 275 },
-  { date: "Apr 15, 2023", users: 294 },
-  { date: "Apr 16, 2023", users: 312 },
-  { date: "Apr 17, 2023", users: 308 },
-  { date: "Apr 18, 2023", users: 326 },
-  { date: "Apr 19, 2023", users: 340 },
-  { date: "Apr 20, 2023", users: 358 },
-  { date: "Apr 21, 2023", users: 374 },
-  { date: "Apr 22, 2023", users: 390 },
-  { date: "Apr 23, 2023", users: 410 },
-  { date: "Apr 24, 2023", users: 428 },
-  { date: "Apr 25, 2023", users: 445 },
-  { date: "Apr 26, 2023", users: 476 },
-  { date: "Apr 27, 2023", users: 490 },
-  { date: "Apr 28, 2023", users: 520 },
-  { date: "Apr 29, 2023", users: 545 },
-  { date: "Apr 30, 2023", users: 578 },
+  { date: "2025-04-01 00:00:00", users: 120 },
+  { date: "2025-04-02 00:00:00", users: 132 },
+  { date: "2025-04-03 00:00:00", users: 145 },
+  { date: "2025-04-04 00:00:00", users: 140 },
+  { date: "2025-04-05 00:00:00", users: 158 },
+  { date: "2025-04-06 00:00:00", users: 172 },
+  { date: "2025-04-07 00:00:00", users: 190 },
+  { date: "2025-04-08 00:00:00", users: 185 },
+  { date: "2025-04-09 00:00:00", users: 192 },
+  { date: "2025-04-10 00:00:00", users: 210 },
+  { date: "2025-04-11 00:00:00", users: 215 },
+  { date: "2025-04-12 00:00:00", users: 234 },
+  { date: "2025-04-13 00:00:00", users: 256 },
+  { date: "2025-04-14 00:00:00", users: 275 },
+  { date: "2025-04-15 00:00:00", users: 294 },
+  { date: "2025-04-16 00:00:00", users: 312 },
+  { date: "2025-04-17 00:00:00", users: 308 },
+  { date: "2025-04-18 00:00:00", users: 326 },
+  { date: "2025-04-19 00:00:00", users: 340 },
+  { date: "2025-04-20 00:00:00", users: 358 },
+  { date: "2025-04-21 00:00:00", users: 374 },
+  { date: "2025-04-22 00:00:00", users: 390 },
+  { date: "2025-04-23 00:00:00", users: 410 },
+  { date: "2025-04-24 00:00:00", users: 428 },
+  { date: "2025-04-25 00:00:00", users: 445 },
+  { date: "2025-04-26 00:00:00", users: 476 },
+  { date: "2025-04-27 00:00:00", users: 490 },
+  { date: "2025-04-28 00:00:00", users: 520 },
+  { date: "2025-04-29 00:00:00", users: 545 },
+  { date: "2025-04-30 00:00:00", users: 578 },
 ]
 
 const responseTimeData = [
-  { date: "Apr 1, 2023", time: 1 },
-  { date: "Apr 2, 2023", time: 2 },
-  { date: "Apr 3, 2023", time: 5 },
-  { date: "Apr 4, 2023", time: 1 },
-  { date: "Apr 5, 2023", time: 8 },
-  { date: "Apr 6, 2023", time: 2 },
-  { date: "Apr 7, 2023", time: 1 },
-  { date: "Apr 8, 2023", time: 5 },
-  { date: "Apr 9, 2023", time: 2 },
-  { date: "Apr 10, 2023", time: 1 },
-  { date: "Apr 11, 2023", time: 5 },
-  { date: "Apr 12, 2023", time: 4 },
-  { date: "Apr 13, 2023", time: 2 },
-  { date: "Apr 14, 2023", time: 2 },
-  { date: "Apr 15, 2023", time: 4 },
-  { date: "Apr 16, 2023", time: 2 },
-  { date: "Apr 17, 2023", time: 8 },
-  { date: "Apr 18, 2023", time: 6 },
-  { date: "Apr 19, 2023", time: 1 },
-  { date: "Apr 20, 2023", time: 1 },
-  { date: "Apr 21, 2023", time: 4 },
-  { date: "Apr 22, 2023", time: 1 },
-  { date: "Apr 23, 2023", time: 1 },
-  { date: "Apr 24, 2023", time: 8 },
-  { date: "Apr 25, 2023", time: 5 },
-  { date: "Apr 26, 2023", time: 6 },
-  { date: "Apr 27, 2023", time: 1 },
-  { date: "Apr 28, 2023", time: 1 },
-  { date: "Apr 29, 2023", time: 5 },
-  { date: "Apr 30, 2023", time: 8 },
+  { date: "2025-04-01 00:00:00", time: 1 },
+  { date: "2025-04-02 00:00:00", time: 2 },
+  { date: "2025-04-03 00:00:00", time: 5 },
+  { date: "2025-04-04 00:00:00", time: 1 },
+  { date: "2025-04-05 00:00:00", time: 8 },
+  { date: "2025-04-06 00:00:00", time: 2 },
+  { date: "2025-04-07 00:00:00", time: 1 },
+  { date: "2025-04-08 00:00:00", time: 5 },
+  { date: "2025-04-09 00:00:00", time: 2 },
+  { date: "2025-04-10 00:00:00", time: 1 },
+  { date: "2025-04-11 00:00:00", time: 5 },
+  { date: "2025-04-12 00:00:00", time: 4 },
+  { date: "2025-04-13 00:00:00", time: 2 },
+  { date: "2025-04-14 00:00:00", time: 2 },
+  { date: "2025-04-15 00:00:00", time: 4 },
+  { date: "2025-04-16 00:00:00", time: 2 },
+  { date: "2025-04-17 00:00:00", time: 8 },
+  { date: "2025-04-18 00:00:00", time: 6 },
+  { date: "2025-04-19 00:00:00", time: 1 },
+  { date: "2025-04-20 00:00:00", time: 1 },
+  { date: "2025-04-21 00:00:00", time: 4 },
+  { date: "2025-04-22 00:00:00", time: 1 },
+  { date: "2025-04-23 00:00:00", time: 1 },
+  { date: "2025-04-24 00:00:00", time: 8 },
+  { date: "2025-04-25 00:00:00", time: 5 },
+  { date: "2025-04-26 00:00:00", time: 6 },
+  { date: "2025-04-27 00:00:00", time: 1 },
+  { date: "2025-04-28 00:00:00", time: 1 },
+  { date: "2025-04-29 00:00:00", time: 5 },
+  { date: "2025-04-30 00:00:00", time: 8 },
 ]
 
 // Dummy data for satisfaction
 const satisfactionData = [
-  { date: "Apr 1, 2023", satisfaction: 81 },
-  { date: "Apr 2, 2023", satisfaction: 82 },
-  { date: "Apr 3, 2023", satisfaction: 85 },
-  { date: "Apr 4, 2023", satisfaction: 81 },
-  { date: "Apr 5, 2023", satisfaction: 88 },
-  { date: "Apr 6, 2023", satisfaction: 82 },
-  { date: "Apr 7, 2023", satisfaction: 81 },
-  { date: "Apr 8, 2023", satisfaction: 85 },
-  { date: "Apr 9, 2023", satisfaction: 82 },
-  { date: "Apr 10, 2023", satisfaction: 81 },
-  { date: "Apr 11, 2023", satisfaction: 85 },
-  { date: "Apr 12, 2023", satisfaction: 84 },
-  { date: "Apr 13, 2023", satisfaction: 85 },
-  { date: "Apr 15, 2023", satisfaction: 84 },
-  { date: "Apr 16, 2023", satisfaction: 82 },
-  { date: "Apr 17, 2023", satisfaction: 88 },
-  { date: "Apr 18, 2023", satisfaction: 86 },
-  { date: "Apr 19, 2023", satisfaction: 81 },
-  { date: "Apr 20, 2023", satisfaction: 81 },
-  { date: "Apr 21, 2023", satisfaction: 84 },
-  { date: "Apr 22, 2023", satisfaction: 81 },
-  { date: "Apr 23, 2023", satisfaction: 81 },
-  { date: "Apr 24, 2023", satisfaction: 88 },
-  { date: "Apr 25, 2023", satisfaction: 85 },
-  { date: "Apr 26, 2023", satisfaction: 86 },
-  { date: "Apr 27, 2023", satisfaction: 81 },
-  { date: "Apr 28, 2023", satisfaction: 81 },
-  { date: "Apr 29, 2023", satisfaction: 85 },
-  { date: "Apr 30, 2023", satisfaction: 88 },
+  { date: "2025-04-01 00:00:00", satisfaction: 81 },
+  { date: "2025-04-02 00:00:00", satisfaction: 82 },
+  { date: "2025-04-03 00:00:00", satisfaction: 85 },
+  { date: "2025-04-04 00:00:00", satisfaction: 81 },
+  { date: "2025-04-05 00:00:00", satisfaction: 88 },
+  { date: "2025-04-06 00:00:00", satisfaction: 82 },
+  { date: "2025-04-07 00:00:00", satisfaction: 81 },
+  { date: "2025-04-08 00:00:00", satisfaction: 85 },
+  { date: "2025-04-09 00:00:00", satisfaction: 82 },
+  { date: "2025-04-10 00:00:00", satisfaction: 81 },
+  { date: "2025-04-11 00:00:00", satisfaction: 85 },
+  { date: "2025-04-12 00:00:00", satisfaction: 84 },
+  { date: "2025-04-13 00:00:00", satisfaction: 85 },
+  { date: "2025-04-15 00:00:00", satisfaction: 84 },
+  { date: "2025-04-16 00:00:00", satisfaction: 82 },
+  { date: "2025-04-17 00:00:00", satisfaction: 88 },
+  { date: "2025-04-18 00:00:00", satisfaction: 86 },
+  { date: "2025-04-19 00:00:00", satisfaction: 81 },
+  { date: "2025-04-20 00:00:00", satisfaction: 81 },
+  { date: "2025-04-21 00:00:00", satisfaction: 84 },
+  { date: "2025-04-22 00:00:00", satisfaction: 81 },
+  { date: "2025-04-23 00:00:00", satisfaction: 81 },
+  { date: "2025-04-24 00:00:00", satisfaction: 88 },
+  { date: "2025-04-25 00:00:00", satisfaction: 85 },
+  { date: "2025-04-26 00:00:00", satisfaction: 86 },
+  { date: "2025-04-27 00:00:00", satisfaction: 81 },
+  { date: "2025-04-28 00:00:00", satisfaction: 81 },
+  { date: "2025-04-29 00:00:00", satisfaction: 85 },
+  { date: "2025-04-30 00:00:00", satisfaction: 88 },
 ]
 
 // Dummy data for call to action clicks
 const ctaClicksData = [
-  { date: "Apr 1, 2023", clicks: 45 },
-  { date: "Apr 2, 2023", clicks: 52 },
-  { date: "Apr 3, 2023", clicks: 48 },
-  { date: "Apr 4, 2023", clicks: 55 },
-  { date: "Apr 5, 2023", clicks: 62 },
-  { date: "Apr 6, 2023", clicks: 58 },
-  { date: "Apr 7, 2023", clicks: 65 },
-  { date: "Apr 8, 2023", clicks: 72 },
-  { date: "Apr 9, 2023", clicks: 68 },
-  { date: "Apr 10, 2023", clicks: 75 },
-  { date: "Apr 11, 2023", clicks: 82 },
-  { date: "Apr 12, 2023", clicks: 78 },
-  { date: "Apr 13, 2023", clicks: 85 },
-  { date: "Apr 14, 2023", clicks: 92 },
-  { date: "Apr 15, 2023", clicks: 88 },
-  { date: "Apr 16, 2023", clicks: 95 },
-  { date: "Apr 17, 2023", clicks: 102 },
-  { date: "Apr 18, 2023", clicks: 98 },
-  { date: "Apr 19, 2023", clicks: 105 },
-  { date: "Apr 20, 2023", clicks: 112 },
-  { date: "Apr 21, 2023", clicks: 108 },
-  { date: "Apr 22, 2023", clicks: 115 },
-  { date: "Apr 23, 2023", clicks: 122 },
-  { date: "Apr 24, 2023", clicks: 118 },
-  { date: "Apr 25, 2023", clicks: 125 },
-  { date: "Apr 26, 2023", clicks: 132 },
-  { date: "Apr 27, 2023", clicks: 128 },
-  { date: "Apr 28, 2023", clicks: 135 },
-  { date: "Apr 29, 2023", clicks: 142 },
-  { date: "Apr 30, 2023", clicks: 138 },
+  { date: "2025-04-01 00:00:00", clicks: 45 },
+  { date: "2025-04-02 00:00:00", clicks: 52 },
+  { date: "2025-04-03 00:00:00", clicks: 48 },
+  { date: "2025-04-04 00:00:00", clicks: 55 },
+  { date: "2025-04-05 00:00:00", clicks: 62 },
+  { date: "2025-04-06 00:00:00", clicks: 58 },
+  { date: "2025-04-07 00:00:00", clicks: 65 },
+  { date: "2025-04-08 00:00:00", clicks: 72 },
+  { date: "2025-04-09 00:00:00", clicks: 68 },
+  { date: "2025-04-10 00:00:00", clicks: 75 },
+  { date: "2025-04-11 00:00:00", clicks: 82 },
+  { date: "2025-04-12 00:00:00", clicks: 78 },
+  { date: "2025-04-13 00:00:00", clicks: 85 },
+  { date: "2025-04-14 00:00:00", clicks: 92 },
+  { date: "2025-04-15 00:00:00", clicks: 88 },
+  { date: "2025-04-16 00:00:00", clicks: 95 },
+  { date: "2025-04-17 00:00:00", clicks: 102 },
+  { date: "2025-04-18 00:00:00", clicks: 98 },
+  { date: "2025-04-19 00:00:00", clicks: 105 },
+  { date: "2025-04-20 00:00:00", clicks: 112 },
+  { date: "2025-04-21 00:00:00", clicks: 108 },
+  { date: "2025-04-22 00:00:00", clicks: 115 },
+  { date: "2025-04-23 00:00:00", clicks: 122 },
+  { date: "2025-04-24 00:00:00", clicks: 118 },
+  { date: "2025-04-25 00:00:00", clicks: 125 },
+  { date: "2025-04-26 00:00:00", clicks: 132 },
+  { date: "2025-04-27 00:00:00", clicks: 128 },
+  { date: "2025-04-28 00:00:00", clicks: 135 },
+  { date: "2025-04-29 00:00:00", clicks: 142 },
+  { date: "2025-04-30 00:00:00", clicks: 138 },
 ]
 
 // Dummy data for word cloud
@@ -214,8 +219,9 @@ const chatHistoryData = [
   {
     id: "CHAT-1001",
     user: "Anonymous User",
-    time: "Today, 10:23 AM",
+    time: "2025-04-29 10:23:00",
     topic: "Layanan Digital",
+    satisfaction: 82,
     contact: "",
     conversation: [
       {
@@ -256,9 +262,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1002",
     user: "Siti Rahayu",
-    time: "Today, 09:15 AM",
+    time: "2025-04-30 09:15:00",
     topic: "Digital Ventures",
     contact: "siti.rahayu@example.com | 081234567890",
+    satisfaction: 80,
     conversation: [
       {
         sender: "user",
@@ -287,9 +294,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1003",
     user: "Anonymous User",
-    time: "Yesterday, 4:45 PM",
+    time: "2025-04-29 16:45:00",
     topic: "Kontak",
     contact: "",
+    satisfaction: 100,
     conversation: [
       {
         sender: "user",
@@ -318,9 +326,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1004",
     user: "Anonymous User",
-    time: "Yesterday, 2:30 PM",
+    time: "2025-04-29 14:30:00",
     topic: "Venture Building",
     contact: "",
+    satisfaction: 100,
     conversation: [
       {
         sender: "user",
@@ -349,7 +358,7 @@ const chatHistoryData = [
   {
     id: "CHAT-1005",
     user: "Rudi Hartono",
-    time: "Apr 29, 11:20 AM",
+    time: "2025-04-29 11:20:00",
     topic: "Aplikasi Mobile",
     contact: "rudi.hartono@example.com",
     conversation: [
@@ -380,7 +389,7 @@ const chatHistoryData = [
   {
     id: "CHAT-1006",
     user: "Maya Wijaya",
-    time: "Apr 28, 3:15 PM",
+    time: "2025-04-28 15:15:00",
     topic: "Biaya Layanan",
     contact: "0812-3456-7891",
     conversation: [
@@ -411,9 +420,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1007",
     user: "Dian Permata",
-    time: "Apr 27, 10:05 AM",
+    time: "2025-04-27 10:05:00",
     topic: "Klien",
     contact: "dian.permata@example.com | 0812-3456-7892",
+    satisfaction: 100,
     conversation: [
       {
         sender: "user",
@@ -442,9 +452,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1008",
     user: "Hendra Gunawan",
-    time: "Apr 26, 2:40 PM",
+    time: "2025-04-26 14:40:00",
     topic: "Keunggulan",
     contact: "hendra.gunawan@example.com",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -473,9 +484,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1009",
     user: "Rina Fitriani",
-    time: "Apr 25, 9:30 AM",
+    time: "2025-04-25 09:30:00",
     topic: "Program Magang",
     contact: "0812-3456-7893",
+    satisfaction: 100,
     conversation: [
       {
         sender: "user",
@@ -504,9 +516,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1010",
     user: "Joko Susilo",
-    time: "Apr 24, 4:10 PM",
+    time: "2025-04-24 16:10:00",
     topic: "Proses Kerja Sama",
     contact: "joko.susilo@example.com | 0812-3456-7894",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -535,9 +548,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1011",
     user: "Anita Wijaya",
-    time: "Apr 23, 11:05 AM",
+    time: "2025-04-23 11:05:00",
     topic: "Data Intelligence",
     contact: "anita.wijaya@example.com",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -555,9 +569,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1012",
     user: "Bima Putra",
-    time: "Apr 22, 2:15 PM",
+    time: "2025-04-22 14:15:00",
     topic: "Digital Marketing",
     contact: "0812-3456-7895",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -575,9 +590,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1013",
     user: "Citra Dewi",
-    time: "Apr 21, 10:30 AM",
+    time: "2025-04-21 10:30:00",
     topic: "Academy & Technology",
     contact: "citra.dewi@example.com | 0812-3456-7896",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -595,9 +611,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1014",
     user: "Dodi Santoso",
-    time: "Apr 20, 3:45 PM",
+    time: "2025-04-20 15:45:00",
     topic: "Strategy & Consulting",
     contact: "dodi.santoso@example.com",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -615,9 +632,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1015",
     user: "Eka Pratama",
-    time: "Apr 19, 9:20 AM",
+    time: "2025-04-19 09:20:00",
     topic: "Teknologi Blockchain",
     contact: "0812-3456-7897",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -635,9 +653,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1016",
     user: "Faisal Rahman",
-    time: "Apr 18, 1:10 PM",
+    time: "2025-04-18 13:10:00",
     topic: "Artificial Intelligence",
     contact: "faisal.rahman@example.com | 0812-3456-7898",
+    satisfaction: 82,
     conversation: [
       {
         sender: "user",
@@ -655,9 +674,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1017",
     user: "Gita Purnama",
-    time: "Apr 17, 11:25 AM",
+    time: "2025-04-17 11:25:00",
     topic: "E-commerce",
     contact: "gita.purnama@example.com",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -675,9 +695,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1018",
     user: "Hadi Wijaya",
-    time: "Apr 16, 4:30 PM",
+    time: "2025-04-16 16:30:00",
     topic: "IoT",
     contact: "0812-3456-7899",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -695,9 +716,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1019",
     user: "Indah Sari",
-    time: "Apr 15, 10:45 AM",
+    time: "2025-04-15 10:45:00",
     topic: "UX/UI Design",
     contact: "indah.sari@example.com | 0812-3456-7900",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -715,9 +737,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1020",
     user: "Joko Widodo",
-    time: "Apr 14, 2:50 PM",
+    time: "2025-04-14 14:50:00",
     topic: "Cloud Computing",
     contact: "joko.widodo@example.com",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -735,9 +758,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1021",
     user: "Kartika Dewi",
-    time: "Apr 13, 9:15 AM",
+    time: "2025-04-13 09:15:00",
     topic: "Cybersecurity",
     contact: "0812-3456-7901",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -755,9 +779,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1022",
     user: "Lukman Hakim",
-    time: "Apr 12, 3:20 PM",
+    time: "2025-04-12 15:20:00",
     topic: "Big Data",
     contact: "lukman.hakim@example.com | 0812-3456-7902",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -775,9 +800,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1023",
     user: "Mira Lestari",
-    time: "Apr 11, 11:40 AM",
+    time: "2025-04-11 11:40:00",
     topic: "Digital Transformation",
     contact: "mira.lestari@example.com",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -795,9 +821,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1024",
     user: "Nadia Putri",
-    time: "Apr 10, 1:35 PM",
+    time: "2025-04-10 13:35:00",
     topic: "Mobile App Development",
     contact: "0812-3456-7903",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -815,9 +842,10 @@ const chatHistoryData = [
   {
     id: "CHAT-1025",
     user: "Oscar Pratama",
-    time: "Apr 9, 10:10 AM",
+    time: "2025-04-09 10:10:00",
     topic: "Web Development",
     contact: "oscar.pratama@example.com | 0812-3456-7904",
+    satisfaction: 42,
     conversation: [
       {
         sender: "user",
@@ -840,33 +868,50 @@ const knowledgeBaseFiles = [
     name: "Astra Digital Services Overview.pdf",
     type: "pdf",
     size: "2.4 MB",
-    date: "Uploaded on Apr 15, 2023",
+    date: "2025-04-15 00:00:00",
   },
   {
     name: "Digital Ventures Case Studies.docx",
     type: "docx",
     size: "1.8 MB",
-    date: "Uploaded on Mar 22, 2023",
+    date: "2025-03-22 00:00:00",
   },
   {
     name: "Venture Building Methodology.pdf",
     type: "pdf",
     size: "3.2 MB",
-    date: "Uploaded on Feb 10, 2023",
+    date: "2025-02-10 00:00:00",
   },
   {
     name: "Frequently Asked Questions.txt",
     type: "txt",
     size: "156 KB",
-    date: "Uploaded on Apr 30, 2023",
+    date: "2025-04-30 00:00:00",
   },
   {
     name: "Client Testimonials.pdf",
     type: "pdf",
     size: "1.1 MB",
-    date: "Uploaded on Jan 18, 2023",
+    date: "2025-01-18 00:00:00",
   },
 ]
+
+// Function to parse time string to Date object
+const parseTimeString = (timeString: string): Date => {
+  try {
+    // Try parsing assuming ISO format
+    return parseISO(timeString)
+  } catch (error) {
+    // Fallback to new Date if parseISO fails
+    console.error("Error parsing time string:", timeString, error)
+    const date = new Date(timeString)
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date string:", timeString)
+      return new Date() // Return current date as fallback
+    }
+    return date
+  }
+}
 
 export default function Dashboard() {
   const router = useRouter()
@@ -878,19 +923,25 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = useState(false)
   const itemsPerPage = 10
 
+  // Sorting states
+  const [sortColumn, setSortColumn] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [topicFilter, setTopicFilter] = useState<string | null>(null)
+
   // Add these state variables after the existing ones
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2023, 3, 1), // April 1, 2023
-    to: new Date(2023, 3, 30), // April 30, 2023
+    from: new Date(2025, 3, 1), // April 1, 2025
+    to: new Date(2025, 3, 30), // April 30, 2025
   })
   const [timePeriod, setTimePeriod] = useState("monthly")
   const [maxTokens, setMaxTokens] = useState([2000])
+  const [showContactOnly, setShowContactOnly] = useState(false)
 
   // Chatbot settings
   const [chatbotPrompt, setChatbotPrompt] = useState(
     "Anda adalah asisten AI Astra Digital bernama CANDY yang membantu pengguna dengan informasi tentang layanan dan produk Astra Digital. Anda harus selalu ramah, informatif, dan profesional.",
   )
-  const [selectedModel, setSelectedModel] = useState("gpt-4")
+  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash")
   const [temperature, setTemperature] = useState([0.7])
   const [topK, setTopK] = useState([40])
 
@@ -902,31 +953,70 @@ export default function Dashboard() {
     }
   }, [router])
 
-  // Filter chat history based on search term
-  useEffect(() => {
-    if (searchTerm) {
-      setFilteredChats(
-        chatHistoryData.filter(
-          (chat) =>
-            chat.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            chat.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            chat.id.toLowerCase().includes(searchTerm.toLowerCase()),
-        ),
-      )
-      setCurrentPage(1)
-    } else {
-      setFilteredChats(chatHistoryData)
-    }
-  }, [searchTerm])
+  // Memoized filtered and sorted chats
+  const processedChats = useMemo(() => {
+    let chatData = [...chatHistoryData]
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn")
-    router.push("/")
-  }
+    // Filter by topic
+    if (topicFilter) {
+      chatData = chatData.filter((chat) => chat.topic.toLowerCase().includes(topicFilter.toLowerCase()))
+    }
+
+    // Filter by search term (user, topic, id)
+    if (searchTerm) {
+      chatData = chatData.filter(
+        (chat) =>
+          chat.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          chat.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          chat.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    }
+
+    // Filter by date range
+    if (dateRange?.from && dateRange?.to) {
+      chatData = chatData.filter((chat) => {
+        const chatDate = parseTimeString(chat.time)
+        return chatDate >= dateRange.from && chatDate <= dateRange.to
+      })
+    }
+
+    // Filter by contact
+    if (showContactOnly) {
+      chatData = chatData.filter((chat) => chat.contact !== "")
+    }
+
+    // Sort the data
+    if (sortColumn) {
+      chatData.sort((a, b) => {
+        let valueA: any = a[sortColumn as keyof typeof a]
+        let valueB: any = b[sortColumn as keyof typeof b]
+
+        if (sortColumn === "time") {
+          valueA = parseTimeString(a.time).getTime()
+          valueB = parseTimeString(b.time).getTime()
+        }
+
+        if (typeof valueA === "string") {
+          valueA = valueA.toLowerCase()
+          valueB = valueB.toLowerCase()
+        }
+
+        if (valueA < valueB) {
+          return sortDirection === "asc" ? -1 : 1
+        }
+        if (valueA > valueB) {
+          return sortDirection === "asc" ? 1 : -1
+        }
+        return 0
+      })
+    }
+
+    return chatData
+  }, [searchTerm, dateRange, showContactOnly, sortColumn, sortDirection, topicFilter])
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredChats.length / itemsPerPage)
-  const paginatedChats = filteredChats.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const totalPages = Math.ceil(processedChats.length / itemsPerPage)
+  const paginatedChats = processedChats.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   // Handle file upload
   const handleFileUpload = () => {
@@ -991,13 +1081,48 @@ export default function Dashboard() {
     </span>
   )
 
+  const handleSort = (column: string) => {
+    if (column === sortColumn) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+  }
+
+  const getSortIcons = (column: string) => {
+    if (column === sortColumn) {
+      return sortDirection === "asc" ? (
+        <ArrowUp className="h-4 w-4 ml-1 inline" />
+      ) : (
+        <ArrowDown className="h-4 w-4 ml-1 inline" />
+      )
+    }
+    return null
+  }
+
+  const handleTopicClick = (topic: string) => {
+    setTopicFilter(topic)
+  }
+
+  const clearTopicFilter = () => {
+    setTopicFilter(null)
+  }
+
   return (
     <main className="flex min-h-screen flex-col bg-gray-100">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">CANDY Dashboard</h1>
-          <Button variant="outline" className="text-red-600 border-red-600 hover:bg-red-50" onClick={handleLogout}>
+          <Button
+            variant="outline"
+            className="text-red-600 border-red-600 hover:bg-red-50"
+            onClick={() => {
+              localStorage.removeItem("isLoggedIn")
+              router.push("/")
+            }}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
         </div>
@@ -1017,38 +1142,76 @@ export default function Dashboard() {
             {/* Date Range and Time Period Selection */}
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
               <div className="flex flex-col sm:flex-row gap-4">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-[300px] justify-start text-left font-normal">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>
-                        {dateRange?.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "dd MMM yyyy")} - {format(dateRange.to, "dd MMM yyyy")}
-                            </>
-                          ) : (
-                            format(dateRange.from, "dd MMM yyyy")
-                          )
-                        ) : (
-                          "Pilih rentang tanggal"
-                        )}
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <RadioGroup defaultValue="monthly" className="flex space-x-1">
+              <div className="grid gap-2">
+    <Label htmlFor="from-date">From</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[280px] justify-start text-left font-normal",
+            !dateRange?.from && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {dateRange?.from ? (
+            format(dateRange.from, "PPP")
+          ) : (
+            <span>Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={dateRange?.from}
+          onSelect={(date) => 
+            setDateRange(prev => ({
+              from: date,
+              to: prev?.to || date
+            }))
+          }
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
+  
+  <div className="grid gap-2">
+    <Label htmlFor="to-date">To</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[280px] justify-start text-left font-normal",
+            !dateRange?.to && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {dateRange?.to ? (
+            format(dateRange.to, "PPP")
+          ) : (
+            <span>Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={dateRange?.to}
+          onSelect={(date) => 
+            setDateRange(prev => ({
+              from: prev?.from || date,
+              to: date
+            }))
+          }
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
+                <RadioGroup defaultValue="monthly" className="flex space-x-1" onValueChange={setTimePeriod}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="daily" id="daily" />
                     <Label htmlFor="daily">Daily</Label>
@@ -1071,17 +1234,17 @@ export default function Dashboard() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
-                  <Users className="h-4 w-4 text-gray-500" />
+                  <MessageSquare className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">1,248</div>
-                  <p className={`text-xs flex items-center ${12 > 0 ? "text-green-500" : "text-red-500"}`}>
+                  <p className={`text-xs flex items-center mt-2 ${12 > 0 ? "text-green-500" : "text-red-500"}`}>
                     {12 > 0 ? "+" : ""}
-                    {12}% dari periode sebelumnya
+                    {12}% from the previous month
                     {12 > 0 ? (
                       <svg
                         className="w-3 h-3 ml-1"
@@ -1114,6 +1277,9 @@ export default function Dashboard() {
                       </svg>
                     )}
                   </p>
+                  <p className="text-xs mt-2 text-gray-500">
+                    A session is a unique chat conversation initiated by a user
+                  </p>
                 </CardContent>
               </Card>
 
@@ -1124,9 +1290,10 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">843</div>
-                  <p className={`text-xs flex items-center ${5 > 0 ? "text-green-500" : "text-red-500"}`}>
+
+                  <p className={`text-xs flex mt-2 items-center ${5 > 0 ? "text-green-500" : "text-red-500"}`}>
                     {5 > 0 ? "+" : ""}
-                    {5}% dari periode sebelumnya
+                    {5}% from the previous month
                     {5 > 0 ? (
                       <svg
                         className="w-3 h-3 ml-1"
@@ -1159,6 +1326,9 @@ export default function Dashboard() {
                       </svg>
                     )}
                   </p>
+                  <p className="text-xs mt-2 text-gray-500">
+                    A lead is a session where the user provides their contact information
+                  </p>
                 </CardContent>
               </Card>
 
@@ -1169,9 +1339,10 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">928</div>
-                  <p className={`text-xs flex items-center ${11 > 0 ? "text-green-500" : "text-red-500"}`}>
+
+                  <p className={`text-xs flex items-center mt-2 ${11 > 0 ? "text-green-500" : "text-red-500"}`}>
                     {11 > 0 ? "+" : ""}
-                    {11}% dari periode sebelumnya
+                    {11}% from the previous month
                     {11 > 0 ? (
                       <svg
                         className="w-3 h-3 ml-1"
@@ -1204,50 +1375,8 @@ export default function Dashboard() {
                       </svg>
                     )}
                   </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Total Chat Messages</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-gray-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">2,427</div>
-                  <p className={`text-xs flex items-center ${-18 > 0 ? "text-green-500" : "text-red-500"}`}>
-                    {-18 > 0 ? "+" : ""}
-                    {-18}% dari periode sebelumnya
-                    {-18 > 0 ? (
-                      <svg
-                        className="w-3 h-3 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 10l7-7m0 0l7 7m-7-7v18"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-3 h-3 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                        />
-                      </svg>
-                    )}
+                  <p className="text-xs text-gray-500 mt-2">
+                    CTA represents the total number of call-to-action buttons clicked by users
                   </p>
                 </CardContent>
               </Card>
@@ -1259,9 +1388,10 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">92%</div>
-                  <p className={`text-xs flex items-center ${-3 > 0 ? "text-green-500" : "text-red-500"}`}>
+
+                  <p className={`text-xs flex items-center mt-2 ${-3 > 0 ? "text-green-500" : "text-red-500"}`}>
                     {-3 > 0 ? "+" : ""}
-                    {-3}% dari periode sebelumnya
+                    {-3}% from the previous month
                     {-3 > 0 ? (
                       <svg
                         className="w-3 h-3 ml-1"
@@ -1294,6 +1424,9 @@ export default function Dashboard() {
                       </svg>
                     )}
                   </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Satisfaction represents the percentage of 'like' responses out of all 'like' and 'dislike' responses
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -1302,8 +1435,20 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Daily User Activity</CardTitle>
-                  <CardDescription>Daily active users over the last 30 days</CardDescription>
+                  <CardTitle>
+                    {timePeriod === "daily"
+                      ? "Daily Sessions"
+                      : timePeriod === "monthly"
+                        ? "Monthly Sessions"
+                        : "Yearly Sessions"}
+                  </CardTitle>
+                  <CardDescription>
+                    {timePeriod === "daily"
+                      ? "Number of daily chat sessions initiated over the time period."
+                      : timePeriod === "monthly"
+                        ? "Number of monthly chat sessions initiated over the time period."
+                        : "Number of yearly chat sessions initiated over the time period."}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1317,9 +1462,9 @@ export default function Dashboard() {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
+                      <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip labelFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <Legend />
                       <Line
                         name="Active Users"
@@ -1337,8 +1482,20 @@ export default function Dashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Daily Call to Action Clicks</CardTitle>
-                  <CardDescription>Daily call to action click over the last 30 days</CardDescription>
+                  <CardTitle>
+                    {timePeriod === "daily"
+                      ? "Daily Call to Action Clicks"
+                      : timePeriod === "monthly"
+                        ? "Monthly Call to Action Clicks"
+                        : "Yearly Call to Action Clicks"}
+                  </CardTitle>
+                  <CardDescription>
+                    {timePeriod === "daily"
+                      ? "Daily call to action click over the time period"
+                      : timePeriod === "monthly"
+                        ? "Monthly call to action clicks over the time period"
+                        : "Yearly call to action clicks over the time period"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1352,9 +1509,9 @@ export default function Dashboard() {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
+                      <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip labelFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <Legend />
                       <Line
                         name="CTA clicks"
@@ -1372,8 +1529,20 @@ export default function Dashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Daily User Satisfaction</CardTitle>
-                  <CardDescription>Daily User satisfaction percentage the last 30 days</CardDescription>
+                  <CardTitle>
+                    {timePeriod === "daily"
+                      ? "Daily User Satisfaction"
+                      : timePeriod === "monthly"
+                        ? "Monthly User Satisfaction"
+                        : "Yearly User Satisfaction"}
+                  </CardTitle>
+                  <CardDescription>
+                    {timePeriod === "daily"
+                      ? "Daily average user satisfaction rate for chat responses over the time period."
+                      : timePeriod === "monthly"
+                        ? "Monthly user satisfaction rate for chat responses over the time period."
+                        : "Yearly user satisfaction rate for chat responses over the time period."}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1387,9 +1556,9 @@ export default function Dashboard() {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
+                      <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip labelFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <Legend />
                       <Line
                         name="User Satisfaction (%)"
@@ -1407,8 +1576,20 @@ export default function Dashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Daily Average Response Time</CardTitle>
-                  <CardDescription>Daily Chatbot average response time for the last 30 days</CardDescription>
+                  <CardTitle>
+                    {timePeriod === "daily"
+                      ? "Daily Average Response Time"
+                      : timePeriod === "monthly"
+                        ? "Monthly Average Response Time"
+                        : "Yearly Average Response Time"}
+                  </CardTitle>
+                  <CardDescription>
+                    {timePeriod === "daily"
+                      ? "Daily average response time of the chatbot over the time period."
+                      : timePeriod === "monthly"
+                        ? "Monthly average response time of the chatbot over the time period."
+                        : "Yearly average response time of the chatbot over the time period."}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1422,9 +1603,9 @@ export default function Dashboard() {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
+                      <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip labelFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")} />
                       <Legend />
                       <Line
                         name="Response Time (s)"
@@ -1471,21 +1652,78 @@ export default function Dashboard() {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle>Chat History</CardTitle>
-                    <CardDescription>Recent conversations with CANDY</CardDescription>
+                    <CardDescription className="pt-2">
+                      Recent conversations with CANDY
+                      {topicFilter && (
+                        <Button variant="link" size="sm" onClick={clearTopicFilter}>
+                          (Filtered by topic: {topicFilter} - Clear)
+                        </Button>
+                      )}
+                    </CardDescription>
                   </div>
                   <Button variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
                     Export to CSV
                   </Button>
                 </div>
-                <div className="relative mt-4">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    placeholder="Search conversations..."
-                    className="pl-8"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+
+                <div className="flex flex-col md:flex-row gap-4 mt-12 pt-4">
+                  <div className="relative w-full">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input
+                      placeholder="Search conversations by name or topic..."
+                      className="pl-8"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="date"
+                          variant={"outline"}
+                          className={cn(
+                            "w-[300px] justify-start text-left font-normal",
+                            !dateRange && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon />
+                          {dateRange?.from ? (
+                            dateRange.to ? (
+                              <>
+                                {format(dateRange.from, "LLL dd, yyyy")} - {format(dateRange.to, "LLL dd, yyyy")}
+                              </>
+                            ) : (
+                              format(dateRange.from, "LLL dd, yyyy")
+                            )
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={dateRange?.from}
+                          selected={dateRange}
+                          onSelect={setDateRange}
+                          numberOfMonths={2}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="flex items-center">
+                    <Input
+                      type="checkbox"
+                      id="contact-only"
+                      checked={showContactOnly}
+                      onChange={(e) => setShowContactOnly(e.target.checked)}
+                      className="mr-2"
+                    />
+                    <Label htmlFor="contact-only">Contact Only</Label>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1495,11 +1733,27 @@ export default function Dashboard() {
                       <thead>
                         <tr className="border-b bg-gray-50">
                           <th className="h-12 px-4 text-left font-medium">ID</th>
-                          <th className="h-12 px-4 text-left font-medium">Pengguna</th>
-                          <th className="h-12 px-4 text-left font-medium">Waktu</th>
-                          <th className="h-12 px-4 text-left font-medium">Topik</th>
-                          <th className="h-12 px-4 text-left font-medium">Kontak</th>
-                          <th className="h-12 px-4 text-left font-medium">Aksi</th>
+                          <th
+                            className="h-12 px-4 text-left font-medium cursor-pointer hover:text-blue-500 hover:font-bold"
+                            onClick={() => handleSort("user")}
+                          >
+                            User {getSortIcons("user")}
+                          </th>
+                          <th
+                            className="h-12 px-4 text-left font-medium cursor-pointer hover:text-blue-500 hover:font-bold"
+                            onClick={() => handleSort("time")}
+                          >
+                            Time {getSortIcons("time")}
+                          </th>
+                          <th
+                            className="h-12 px-4 text-left font-medium cursor-pointer hover:text-blue-500 hover:font-bolde"
+                            onClick={() => handleSort("topic")}
+                          >
+                            Topic {getSortIcons("topic")}
+                          </th>
+                          <th className="h-12 px-4 text-left font-medium">Contact</th>
+                          <th className="h-12 px-4 text-left font-medium">Satisfaction</th>
+                          <th className="h-12 px-4 text-left font-medium">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1507,9 +1761,15 @@ export default function Dashboard() {
                           <tr key={chat.id} className="border-b">
                             <td className="p-4 align-middle">{chat.id}</td>
                             <td className="p-4 align-middle">{chat.user}</td>
-                            <td className="p-4 align-middle">{chat.time}</td>
-                            <td className="p-4 align-middle">{chat.topic}</td>
+                            <td className="p-4 align-middle">{format(parseTimeString(chat.time), "LLL dd, yyyy")}</td>
+                            <td
+                              className="p-4 align-middle cursor-pointer hover:text-blue-500 hover:font-semibold"
+                              onClick={() => handleTopicClick(chat.topic)}
+                            >
+                              {chat.topic}
+                            </td>
                             <td className="p-4 align-middle">{chat.contact || "-"}</td>
+                            <td className="p-4 align-middle">{chat.satisfaction ? chat.satisfaction : "N/A"}</td>
                             <td className="p-4 align-middle">
                               <Dialog>
                                 <DialogTrigger asChild>
@@ -1519,10 +1779,10 @@ export default function Dashboard() {
                                 </DialogTrigger>
                                 <DialogContent className="max-w-3xl">
                                   <DialogHeader>
-                                    <DialogTitle>Riwayat Percakapan</DialogTitle>
+                                    <DialogTitle>Chat History</DialogTitle>
                                     <DialogDescription>
-                                      {chat.id} - {chat.user} - {chat.time}
-                                      {chat.contact && <div className="mt-1 text-sm">Kontak: {chat.contact}</div>}
+                                      {chat.id} - {chat.user} - {format(parseTimeString(chat.time), "LLL dd, yyyy")}
+                                      {chat.contact && <div className="mt-1 text-sm">Contact: {chat.contact}</div>}
                                     </DialogDescription>
                                   </DialogHeader>
                                   <ScrollArea className="h-[500px] pr-4">
@@ -1531,7 +1791,9 @@ export default function Dashboard() {
                                         chat.conversation.map((msg, idx) => (
                                           <div
                                             key={idx}
-                                            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                            className={`flex ${
+                                              msg.sender === "user" ? "justify-end" : "justify-start"
+                                            }`}
                                           >
                                             <div
                                               className={`max-w-[80%] rounded-lg p-3 ${
@@ -1569,8 +1831,8 @@ export default function Dashboard() {
 
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-gray-500">
-                    Menampilkan {(currentPage - 1) * itemsPerPage + 1}-
-                    {Math.min(currentPage * itemsPerPage, filteredChats.length)} dari {filteredChats.length} percakapan
+                    Showing {(currentPage - 1) * itemsPerPage + 1}-
+                    {Math.min(currentPage * itemsPerPage, processedChats.length)} of {processedChats.length} chats
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -1579,10 +1841,10 @@ export default function Dashboard() {
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
                     >
-                      Sebelumnya
+                      Previous
                     </Button>
                     <div className="text-sm">
-                      Halaman {currentPage} dari {totalPages}
+                      Page {currentPage} of {totalPages}
                     </div>
                     <Button
                       variant="outline"
@@ -1590,7 +1852,7 @@ export default function Dashboard() {
                       onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
                     >
-                      Berikutnya
+                      Next
                     </Button>
                   </div>
                 </div>
@@ -1629,12 +1891,8 @@ export default function Dashboard() {
                       <SelectValue placeholder="Select a model" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="gpt-4">GPT-4 (Accurate, High Performance)</SelectItem>
-                      <SelectItem value="gpt-4o">GPT-4o (Balanced Performance)</SelectItem>
-                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Cost Efficient)</SelectItem>
-                      <SelectItem value="claude-3-opus">Claude 3 Opus (High Accuracy)</SelectItem>
-                      <SelectItem value="claude-3-sonnet">Claude 3 Sonnet (Balanced)</SelectItem>
-                      <SelectItem value="llama-3-70b">Llama 3 70B (Open Source)</SelectItem>
+                      <SelectItem value="gemini-2.0-flash">Gemini 2.0 Flash (Fast, Cost Efficient)</SelectItem>
+                      <SelectItem value="gemini-2.0-pro">Gemini 2.0 Pro (Balanced Performance)</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-sm text-gray-500">Select the language model that powers your chatbot.</p>
@@ -1781,13 +2039,13 @@ export default function Dashboard() {
                         uploadedFiles.map((file, index) => (
                           <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                             <div className="flex items-center">
-                              <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center text-white mr-3">
+                              <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white mr-3">
                                 {file.type === "pdf" ? "PDF" : file.type === "docx" ? "DOC" : "TXT"}
                               </div>
                               <div>
                                 <p className="font-medium text-sm">{file.name}</p>
                                 <p className="text-xs text-gray-500">
-                                  {file.size} • {file.date}
+                                  {file.size} • {format(parseISO(file.date), "MMM dd, yyyy")}
                                 </p>
                               </div>
                             </div>

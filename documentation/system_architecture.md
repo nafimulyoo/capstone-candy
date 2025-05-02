@@ -80,7 +80,7 @@ Please refer to the [database architecture documentation](./database_architectur
 ---
 
 ## **6. Frontend UI Mockups**
-### Mockups are deployed on Vercel and can be accessed at [CANDY AI Assistant Mockups](https://capstone-product-chatbot.vercel.app/)
+### Mockups are deployed on Vercel and can be accessed at [CANDY AI Assistant Mockups](https://capstone-candy.vercel.app/)
 
 ### **Home Page**
 ![Home Page](/documentation/screenshots/home_page.jpeg)

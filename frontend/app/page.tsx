@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import FloatingChatbot from "@/components/floating-chatbot"
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
 
 export default function Home() {
   // Handle hash navigation when the page loads
@@ -40,6 +41,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col">
+      <DatePickerWithRange className="mb-4" />
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white">
         <div className="container mx-auto px-4 py-20 md:py-32 flex flex-col md:flex-row items-center">
