@@ -157,6 +157,36 @@ Same format as `/analytics/sessions`
 }
 ```
 
+### POST /chats
+**Request:**
+```json
+{
+  "metadata": {
+    "timestamp": "2023-11-15T10:15:00Z",
+    "topic": "Data Intelligence",
+    "userClickToAction": false,
+    "name": "Budi",
+    "email": "budi@mail.com",
+    "phone": "+628123456789"
+  },
+  "messages": [
+    {
+      "role": "user",
+      "message": "Halo bot",
+      "timestamp": "2023-11-15T10:15:30Z",
+    },
+    {
+      "role": "bot",
+      "message": "Halo! Ada yang bisa saya bantu?",
+      "timestamp": "2023-11-15T10:15:35Z",
+      "link_to_contact": true,
+      "feedback": "positive",
+      "response_time": 1.2 
+    }
+  ]
+}
+```
+
 **Response:**
 ```json
 {
@@ -176,7 +206,8 @@ Same format as `/analytics/sessions`
   "model": "gemini-2.0-flash",
   "temperature": 0.4,
   "top_k": 50,
-  "google_drive_link": "https://drive.google.com/..."
+  "max_token": 2000,
+  "files": ["file_001.pdf", "file_002.docx", "file_003.txt"],
 }
 ```
 
@@ -188,7 +219,7 @@ Same format as `/analytics/sessions`
   "model": "gemini-2.0-pro",
   "temperature": 0.5,
   "top_k": 40,
-  "google_drive_link": "https://drive.google.com/new..."
+  "max_token": 1500,
 }
 ```
 
@@ -199,7 +230,7 @@ Same format as `/analytics/sessions`
 }
 ```
 
-### POST /llm-settings/upload
+### POST /llm-settings/file
 **Request:**
 ```json
 {
@@ -212,9 +243,19 @@ Same format as `/analytics/sessions`
 ```json
 {
   "message": "File uploaded successfully",
-  "file_id": "file_001_unique_id"
+  "file_name": "knowledge_base.pdf"
 }
 ```
+
+### DELETE /llm-settings/file/{file_name}
+**Response:**
+```json
+{
+  "message": "File deleted successfully",
+  "file_name": "knowledge_base.pdf"
+}
+```
+
 ---
 ## 5. Chatbot API
 ### POST /chat/ask
