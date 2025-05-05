@@ -7,8 +7,21 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Phone, MapPin, Send, CheckCircle, MessageSquare } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  CheckCircle,
+  MessageSquare,
+} from "lucide-react"
 import Link from "next/link"
 
 export default function ContactPage() {
@@ -25,7 +38,9 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
@@ -77,7 +92,8 @@ export default function ContactPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Butuh Jawaban Cepat?</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Dapatkan jawaban instan untuk pertanyaan Anda dengan CANDY, asisten virtual Astra Digital.
+              Dapatkan jawaban instan untuk pertanyaan Anda dengan CANDY,
+              asisten virtual Astra Digital.
             </p>
           </div>
 
@@ -88,8 +104,9 @@ export default function ContactPage() {
             </div>
             <div className="p-6">
               <p className="text-gray-600 mb-6">
-                CANDY dapat membantu Anda dengan informasi tentang layanan, produk, dan solusi digital Astra Digital.
-                Dapatkan jawaban instan untuk pertanyaan umum tanpa perlu menunggu.
+                CANDY dapat membantu Anda dengan informasi tentang layanan,
+                produk, dan solusi digital Astra Digital. Dapatkan jawaban
+                instan untuk pertanyaan umum tanpa perlu menunggu.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/chatbot">
@@ -119,11 +136,11 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1">Alamat</h3>
                     <p className="text-gray-600">
-                      Jl. Teknologi No. 123
+                      PT Astra Digital Internasional
                       <br />
-                      Jakarta Selatan, 12345
+                      Altira Business Park D.01-02
                       <br />
-                      Indonesia
+                      Jakarta, Indonesia
                     </p>
                   </div>
                 </div>
@@ -135,8 +152,11 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1">Email</h3>
                     <p className="text-gray-600">
-                      <a href="mailto:info@radiance.id" className="hover:text-blue-600">
-                        info@radiance.id
+                      <a
+                        href="mailto:info@astradigital.id"
+                        className="hover:text-blue-600"
+                      >
+                        info@astradigital.id
                       </a>
                     </p>
                   </div>
@@ -149,7 +169,10 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1">Telepon</h3>
                     <p className="text-gray-600">
-                      <a href="tel:+6281234567890" className="hover:text-blue-600">
+                      <a
+                        href="tel:+6281234567890"
+                        className="hover:text-blue-600"
+                      >
                         +62 812 3456 7890
                       </a>
                     </p>
@@ -178,14 +201,18 @@ export default function ContactPage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Pesan Terkirim!</h3>
                   <p className="text-gray-600">
-                    Terima kasih telah menghubungi kami. Tim kami akan segera menghubungi Anda.
+                    Terima kasih telah menghubungi kami. Tim kami akan segera
+                    menghubungi Anda.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Nama Lengkap *
                       </label>
                       <Input
@@ -199,7 +226,10 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Email *
                       </label>
                       <Input
@@ -214,7 +244,10 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="phone"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Nomor Telepon
                       </label>
                       <Input
@@ -227,7 +260,10 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="company"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Perusahaan
                       </label>
                       <Input
@@ -241,27 +277,46 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="service"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Layanan yang Diminati
                     </label>
-                    <Select value={formState.service} onValueChange={handleSelectChange}>
+                    <Select
+                      value={formState.service}
+                      onValueChange={handleSelectChange}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih layanan yang Anda minati" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="web-development">Pengembangan Aplikasi Web</SelectItem>
-                        <SelectItem value="mobile-development">Pengembangan Aplikasi Mobile</SelectItem>
-                        <SelectItem value="digital-consulting">Konsultasi Digital</SelectItem>
-                        <SelectItem value="data-analytics">Analisis Data & AI</SelectItem>
+                        <SelectItem value="web-development">
+                          Pengembangan Aplikasi Web
+                        </SelectItem>
+                        <SelectItem value="mobile-development">
+                          Pengembangan Aplikasi Mobile
+                        </SelectItem>
+                        <SelectItem value="digital-consulting">
+                          Konsultasi Digital
+                        </SelectItem>
+                        <SelectItem value="data-analytics">
+                          Analisis Data & AI
+                        </SelectItem>
                         <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
-                        <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
+                        <SelectItem value="digital-marketing">
+                          Digital Marketing
+                        </SelectItem>
                         <SelectItem value="other">Lainnya</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="subject"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Subjek *
                     </label>
                     <Input
@@ -275,7 +330,10 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Pesan *
                     </label>
                     <Textarea
@@ -333,23 +391,26 @@ export default function ContactPage() {
         </div>
       </section>
 
-      
-
       {/* Map Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Lokasi Kami</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Kunjungi kantor kami di Jakarta Selatan.</p>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Kunjungi kantor kami di Jakarta.
+            </p>
           </div>
 
           <div className="rounded-lg overflow-hidden shadow-md">
-            {/* Replace with actual map embed */}
-            <div className="bg-gray-200 h-96 flex items-center justify-center">
-              <p className="text-gray-600">
-                [Peta akan ditampilkan di sini - Gunakan Google Maps atau penyedia peta lainnya]
-              </p>
-            </div>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.8444449420135!2d106.8836042104907!3d-6.1515819602715585!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5e7a9692213%3A0x1229e3cb2859511c!2sPT%20Astra%20Digital%20Internasional-%20Altira%20Business%20Park%20D.01-02!5e0!3m2!1sen!2sid!4v1745996906918!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
         </div>
       </section>

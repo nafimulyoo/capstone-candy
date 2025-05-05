@@ -14,11 +14,14 @@ import {
   Lightbulb,
   BookOpen,
   MessageSquare,
-  Candy
+  Candy,
+  Crosshair,
+  FastForward,
+  Cpu
+
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import FloatingChatbot from "@/components/floating-chatbot"
-import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
 
 export default function Home() {
   // Handle hash navigation when the page loads
@@ -41,7 +44,6 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      <DatePickerWithRange className="mb-4" />
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white">
         <div className="container mx-auto px-4 py-20 md:py-32 flex flex-col md:flex-row items-center">
@@ -51,13 +53,6 @@ export default function Home() {
               Astra Digital membantu perusahaan Anda bertransformasi melalui solusi digital inovatif yang meningkatkan
               efisiensi dan pertumbuhan bisnis.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/chatbot">
-                <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100">
-                  <Candy className="mr-2 h-4 w-4" /> Konsultasi Gratis Bersama CANDY
-                </Button>
-              </Link>
-            </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
             <Image
@@ -73,6 +68,63 @@ export default function Home() {
       </section>
 
       {/* About Us Section */}
+    
+<section className="pt-32 bg-white" id="candy">
+  <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-6 relative ml-12">
+    <div className="col-span-2">
+      <div className="text-center flex flex-col justify-center items-center">
+        
+        <h2 className="text-4xl font-bold mb-4 mt-8 flex"><Candy className="h-12 w-12 text-blue-600 mr-2 pb-2" />Berkenalan dengan CANDY</h2>
+        <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+          CANDY adalah asisten virtual yang dirancang untuk memberikan
+          informasi cepat dan akurat tentang layanan Astra Digital. CANDY hadir
+          untuk membantu Anda memahami bagaimana Astra Digital dapat mendukung
+          transformasi digital bisnis Anda.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 items-center text-center justify-center">
+          <Link href="/chatbot">
+            <Button size="lg" className="bg-blue-800 hover:bg-blue-900 mt-8">
+            Konsultasi Gratis Bersama CANDY
+            </Button>
+          </Link>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-12">
+        <div className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="text-xl font-semibold mb-2 flex items-center"><FastForward className="text-blue-800 mr-2" size={28} /> Respon Cepat</div>
+          <p className="text-gray-600">
+            CANDY memberikan respon instan untuk memberikan jawaban cepat.
+          </p>
+        </div>
+        <div className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="text-xl font-semibold mb-2 flex items-center"><Cpu className="text-blue-800 mr-2" size={28} />Teknologi Terkini</div>
+          <p className="text-gray-600">
+            CANDY dibangun dengan teknologi LLM terkini untuk memberikan jawaban
+            yang cerdas dan komprehensif.
+          </p>
+        </div>
+        <div className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="text-xl font-semibold mb-2 flex items-center"><Crosshair className="text-blue-800 mr-2" size={28} />Informasi Akurat</div>
+          <p className="text-gray-600">
+            CANDY terus diperbarui dengan informasi terbaru untuk memastikan Anda
+            mendapatkan jawaban yang paling akurat.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div className="relative bottom-0 col-span-1">
+      <Image
+        src="https://i.ibb.co.com/9m7DfWWD/output.png"
+        alt="output"
+        // border="0"
+        width={500}
+        height={500}
+        className="absolute bottom-0"
+      />
+    </div>
+  </div>
+</section>
+
 
       {/* Services Section */}
       <section className="py-16 bg-gray-50" id="services">
@@ -181,11 +233,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="mb-4 text-blue-600">
-                <Users size={32} />
+                <MessageSquare size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Tim Ahli</h3>
+              <h3 className="text-xl font-semibold mb-2">Respon Cepat</h3>
               <p className="text-gray-600">
-                Tim kami terdiri dari para ahli dengan pengalaman luas di berbagai bidang teknologi digital.
+                CANDY memberikan respon instan untuk memberikan jawaban cepat.
               </p>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -350,75 +402,75 @@ const portfolioItems = [
   {
     title: "OLXmobbi",
     slug: "olxmobbi",
-    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_18_74ba3e1f37.png",
+    image: "https://ruangoto.com/wp-content/uploads/2024/03/Logo-OLXmobbi.png",
   },
   {
     title: "Halodoc",
     slug: "halodoc",
-    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_18_74ba3e1f37.png",
+    image: "https://vectorseek.com/wp-content/uploads/2023/09/Halodoc-Logo-Vector.svg-.png",
   },
   {
     title: "Sayurbox",
     slug: "sayurbox",
-    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_18_74ba3e1f37.png",
+    image: "https://cdn.dribbble.com/userupload/10686541/file/still-1c30446ca335403aed20c51f3fbf88b7.png?resize=1600x1200",
   },
   {
     title: "Astra Otoparts",
     slug: "astra-otoparts",
-    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_18_74ba3e1f37.png",
+    image: "https://th.bing.com/th/id/R.d704ca6fc8313296d1dc882ace1189fb?rik=4jEwpRNq5cjidg&pid=ImgRaw&r=0",
   },
   {
     title: "Digiroom",
     slug: "digiroom",
-    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_18_74ba3e1f37.png",
+    image: "https://auto2000.co.id/_ui/responsive/theme-auto2000/images/Digiroom_Logo_200312-02.png",
   },
 ]
 
 // Sample data for products
 const products = [
   {
-    name: "Astra Digital Product 1",
-    description: "Platform digital yang membantu bisnis Anda meningkatkan efisiensi dan produktivitas.",
+    name: "Splash",
+    description: "SPLASH memadukan kemampuan analisis data yang komprehensif dengan antarmuka yang intuitif, memungkinkan bisnis memahami dinamika ekonomi, memantau tren industri, dan mengidentifikasi peluang pasar—semuanya dalam satu alat terintegrasi.",
     slug: "product-1",
     image: "https://cdn1.katadata.co.id/template/template_splash/splash-logo-2024.png",
   },
   {
-    name: "Astra Digital Product 2",
-    description: "Solusi inovatif untuk mengoptimalkan proses bisnis dan meningkatkan pengalaman pelanggan.",
-    slug: "product-2",
-    image: "https://cdn1.katadata.co.id/template/template_splash/splash-logo-2024.png",
+    name: "Natacara",
+    description: "Natacara adalah salah satu inovasi terbaru dari Astra Digital yang memiliki fokus di bidang event management. Natacara hadir ke publik untuk melayani berbagai kebutuhan event, baik offline, online, maupun hybrid.",
+    slug: "natacara",
+    image: "https://adiwebstprdsea.blob.core.windows.net/astradigital-be/assets/images/medium_8_9d0a53edcd.png",
   },
   {
-    name: "Astra Digital Product 3",
-    description: "Teknologi canggih untuk membantu bisnis Anda berkembang di era digital.",
+    name: "Astranauts",
+    description: "Astranauts adalah kompetisi inovasi digital dan konferensi teknologi berskala nasional yang terbuka untuk startup dan mahasiswa dari seluruh Indonesia.",
     slug: "product-3",
-    image: "https://cdn1.katadata.co.id/template/template_splash/splash-logo-2024.png",
+    image: "https://the-iconomics.storage.googleapis.com/wp-content/uploads/2024/03/16163320/Astranauts.jpg",
   },
 ]
 
 // Sample data for testimonials
 const testimonials = [
   {
-    name: "Crystal Chan",
+    name: "Muhammad Zuhdi Hanif",
     position: "IT Director for IKEA & Group Digital Dairy Farm Group",
     company: "IKEA",
     quote:
       "Astra have very enthusiastic, engaging and supportive talent that are open to try new things and not afraid to fail. We hope and plan to expand our collaboration into other Dairy Farm's companies.",
-    avatar: "https://media.licdn.com/dms/image/v2/C4D03AQEMcwVoKb8z4g/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1649441783152?e=1750896000&v=beta&t=vfroabq_lTUrdsg07MvCMuHlOzrQUY4i0CC9LvXrTWM",
+    avatar: "https://media.licdn.com/dms/image/v2/D5603AQEFwmWIBB5rCA/profile-displayphoto-shrink_800_800/B56ZPz7kp6GsAg-/0/1734964301212?e=1751500800&v=beta&t=uE-jTp8UcIdXf_XDnCmjlz04Lai-iB30KehyrgyczI4",
   },
   {
-    name: "Abidin Riyadi",
+    name: "Rana Sahira",
     position: "Division Head of IT & GA",
     company: "PT Toyota Astra Financial Services",
     quote:
       "TAF collaborates with Natacara from Astra Digital, providing uswith full support, form consultation and event operations to their lucky draw feature. Thank you Natacara.",
-    avatar: "https://media.licdn.com/dms/image/v2/C4D03AQEMcwVoKb8z4g/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1649441783152?e=1750896000&v=beta&t=vfroabq_lTUrdsg07MvCMuHlOzrQUY4i0CC9LvXrTWM",
+    avatar: "https://media.licdn.com/dms/image/v2/D5603AQGQzXxgi0MIMg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709281284942?e=1751500800&v=beta&t=YtPIKE_eyNv8H1X7e_VUw1udQTKW4cdDZV_iYPPZPSk",
   },
   {
-    name: "Suparno Djasmin",
+    name: "Sheila Ikhwani",
     position: "Director in Charge Astra Financial",
     company: "SEVA",
     quote: "Really satisfied with how Astra Digital work on SEVA. Everything is managed beautifully with clear result.",
-    avatar: "https://media.licdn.com/dms/image/v2/C4D03AQEMcwVoKb8z4g/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1649441783152?e=1750896000&v=beta&t=vfroabq_lTUrdsg07MvCMuHlOzrQUY4i0CC9LvXrTWM",
+    avatar: "https://media.licdn.com/dms/image/v2/D5603AQE_cWEIR2jzPA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1694664623112?e=1751500800&v=beta&t=8iAuA4UkutDLIr5F681P9_Rr8MM-8k2jHAFqb3cuEyc",
   },
 ]

@@ -47,7 +47,7 @@ import { addDays, format, parseISO } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 
-
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 
@@ -1144,74 +1144,41 @@ export default function Dashboard() {
               <div className="flex flex-col sm:flex-row gap-4">
               <div className="grid gap-2">
     <Label htmlFor="from-date">From</Label>
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !dateRange?.from && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {dateRange?.from ? (
-            format(dateRange.from, "PPP")
-          ) : (
-            <span>Pick a date</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={dateRange?.from}
-          onSelect={(date) => 
-            setDateRange(prev => ({
-              from: date,
-              to: prev?.to || date
-            }))
-          }
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+    <Input
+      type="date"
+      id="from-date"
+      value={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : ""}
+      onChange={(e) => {
+        const date = e.target.value ? new Date(e.target.value) : null;
+        setDateRange(prev => ({
+          from: date,
+          to: prev?.to || date
+        }));
+      }}
+      className="w-[200px]"
+    />
   </div>
   
-  <div className="grid gap-2">
-    <Label htmlFor="to-date">To</Label>
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !dateRange?.to && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {dateRange?.to ? (
-            format(dateRange.to, "PPP")
-          ) : (
-            <span>Pick a date</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={dateRange?.to}
-          onSelect={(date) => 
-            setDateRange(prev => ({
-              from: prev?.from || date,
-              to: date
-            }))
-          }
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  </div>
-                <RadioGroup defaultValue="monthly" className="flex space-x-1" onValueChange={setTimePeriod}>
+        <div className="grid gap-2">
+          <Label htmlFor="to-date">To</Label>
+          <Input
+            type="date"
+            id="to-date"
+            value={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : ""}
+            onChange={(e) => {
+              const date = e.target.value ? new Date(e.target.value) : null;
+              setDateRange(prev => ({
+                from: prev?.from || date,
+                to: date
+              }));
+            }}
+            className="w-[200px]"
+          />
+        </div>
+          <div className="grid gap-1">
+
+                <Label>Group data by</Label>
+                <RadioGroup defaultValue="monthly" className="flex space-x-1 -pt-1" onValueChange={setTimePeriod}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="daily" id="daily" />
                     <Label htmlFor="daily">Daily</Label>
@@ -1225,6 +1192,7 @@ export default function Dashboard() {
                     <Label htmlFor="yearly">Yearly</Label>
                   </div>
                 </RadioGroup>
+              </div>
               </div>
 
               <Button variant="outline" className="flex items-center gap-2">
@@ -1327,7 +1295,7 @@ export default function Dashboard() {
                     )}
                   </p>
                   <p className="text-xs mt-2 text-gray-500">
-                    A lead is a session where the user provides their contact information
+                    A lead is a chat session where the user provides their contact information
                   </p>
                 </CardContent>
               </Card>
@@ -1376,7 +1344,7 @@ export default function Dashboard() {
                     )}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    CTA represents the total number of call-to-action buttons clicked by users
+                    CTA represents the total number of call-to-action buttons clicked by users from the chatbot
                   </p>
                 </CardContent>
               </Card>
@@ -1668,6 +1636,8 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 mt-12 pt-4">
+                  <div className="grid gap-2 relative w-full">
+                    <Label>Search</Label>
                   <div className="relative w-full">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                     <Input
@@ -1677,52 +1647,52 @@ export default function Dashboard() {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="date"
-                          variant={"outline"}
-                          className={cn(
-                            "w-[300px] justify-start text-left font-normal",
-                            !dateRange && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon />
-                          {dateRange?.from ? (
-                            dateRange.to ? (
-                              <>
-                                {format(dateRange.from, "LLL dd, yyyy")} - {format(dateRange.to, "LLL dd, yyyy")}
-                              </>
-                            ) : (
-                              format(dateRange.from, "LLL dd, yyyy")
-                            )
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          initialFocus
-                          mode="range"
-                          defaultMonth={dateRange?.from}
-                          selected={dateRange}
-                          onSelect={setDateRange}
-                          numberOfMonths={2}
-                        />
-                      </PopoverContent>
-                    </Popover>
                   </div>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="from-date">From</Label>
+                        <Input
+                          type="date"
+                          id="from-date"
+                          value={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : ""}
+                          onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value) : null;
+                            setDateRange(prev => ({
+                              from: date,
+                              to: prev?.to || date
+                            }));
+                          }}
+                          className="w-[200px]"
+                        />
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="to-date">To</Label>
+                        <Input
+                          type="date"
+                          id="to-date"
+                          value={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : ""}
+                          onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value) : null;
+                            setDateRange(prev => ({
+                              from: prev?.from || date,
+                              to: date
+                            }));
+                          }}
+                          className="w-[200px]"
+                        />
+                      </div>
+                      </div>
+                    
                   <div className="flex items-center">
                     <Input
                       type="checkbox"
                       id="contact-only"
                       checked={showContactOnly}
                       onChange={(e) => setShowContactOnly(e.target.checked)}
-                      className="mr-2"
+                      className="mr-2 pt-2"
                     />
-                    <Label htmlFor="contact-only">Contact Only</Label>
+                    <Label htmlFor="contact-only">Leads Only</Label>
                   </div>
                 </div>
               </CardHeader>
@@ -1769,7 +1739,7 @@ export default function Dashboard() {
                               {chat.topic}
                             </td>
                             <td className="p-4 align-middle">{chat.contact || "-"}</td>
-                            <td className="p-4 align-middle">{chat.satisfaction ? chat.satisfaction : "N/A"}</td>
+                            <td className="p-4 align-middle">{chat.satisfaction ? (<span>{chat.satisfaction}%</span>) :(<span>{"N/A"}</span>)}</td>
                             <td className="p-4 align-middle">
                               <Dialog>
                                 <DialogTrigger asChild>

@@ -57,13 +57,6 @@ export default function LoginPage() {
         <div className="w-full md:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <Image
-                src="https://astradigital.id/_next/static/media/logo-astra.be631e35.webp"
-                alt="Astra Digital Logo"
-                width={150}
-                height={40}
-                className="h-10 w-auto mx-auto mb-6"
-              />
               <h1 className="text-2xl font-bold">Login</h1>
               <p className="text-gray-600 mt-2">Masuk ke akun Astra Digital Anda</p>
             </div>

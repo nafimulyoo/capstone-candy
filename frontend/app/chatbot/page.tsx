@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, Bot, User, ThumbsUp, ThumbsDown, ArrowDown, SendIcon } from "lucide-react"
+import { Send, Candy, User, ThumbsUp, ThumbsDown, ArrowDown, SendIcon } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Candy } from "lucide-react"
+import Link from 'next/link';
 
 export default function ChatbotPage() {
   const [messages, setMessages] = useState([
@@ -100,8 +100,8 @@ export default function ChatbotPage() {
     }
 
     // Either email or phone is required unless anonymous
-    if (!anonymous && !contactInfo.email.trim() && !contactInfo.phone.trim()) {
-      newErrors.contact = "Email atau nomor telepon wajib diisi"
+    if (!anonymous && !contactInfo.email.trim()) {
+      newErrors.contact = "Email wajib diisi"
       valid = false
     }
 
@@ -276,7 +276,7 @@ export default function ChatbotPage() {
             {/* Chat Header */}
             <div className="bg-blue-800 text-white p-4">
               <div className="flex items-center">
-                <Bot className="mr-2 h-6 w-6" />
+                <Candy className="mr-2 h-6 w-6" />
                 <h2 className="text-xl font-semibold">CANDY - Astra Digital Assistant</h2>
               </div>
             </div>
@@ -284,26 +284,7 @@ export default function ChatbotPage() {
             {/* Chat Messages */}
             <div ref={chatContainerRef} className="flex-grow overflow-y-auto p-4 relative">
               {/* Suggested Questions at the beginning */}
-              {messages.length <= 1 && (
-                <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold mb-2">Coba tanyakan:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedQuestions.map((question, index) => (
-                      <button
-                        key={index}
-                        className="text-sm bg-white border border-gray-200 rounded-full px-3 py-1 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                        onClick={() => {
-                          setInput(question)
-                          // Optional: automatically send the question
-                          // setTimeout(() => handleSendMessage(), 100)
-                        }}
-                      >
-                        {question}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+
 
               {messages.map((message, index) => (
                 <div key={index} className={`mb-4 flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -313,7 +294,7 @@ export default function ChatbotPage() {
                     }`}
                   >
                     <div className="flex items-center mb-1">
-                      {message.role === "bot" ? <Bot className="mr-2 h-4 w-4" /> : <User className="mr-2 h-4 w-4" />}
+                      {message.role === "bot" ? <Candy className="mr-2 h-4 w-4" /> : <User className="mr-2 h-4 w-4" />}
                       <span className="font-semibold">{message.role === "bot" ? "CANDY" : "Anda"}</span>
                     </div>
                     <p>{message.content}</p>
@@ -361,7 +342,7 @@ export default function ChatbotPage() {
                 <div className="mb-4 flex justify-start">
                   <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 text-gray-800">
                     <div className="flex items-center mb-1">
-                      <Bot className="mr-2 h-4 w-4" />
+                      <Candy className="mr-2 h-4 w-4" />
                       <span className="font-semibold">CANDY</span>
                     </div>
                     <p>Mengetik...</p>
@@ -383,8 +364,26 @@ export default function ChatbotPage() {
             </div>
 
             {/* Chat Input */}
-            <div className="border-t border-gray-200 p-4">
-              <form onSubmit={handleSendMessage} className="flex space-x-2">
+              <form onSubmit={handleSendMessage} >
+              {messages.length <= 1 && (
+                <div className="mb-2 p-4 ">
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedQuestions.map((question, index) => (
+                      <button
+                        key={index}
+                        className="text-sm bg-white border border-gray-200 rounded-full px-3 py-1 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                        onClick={() => {
+                          setInput(question)
+                        }}
+                        type="submit"
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            <div className="border-t border-gray-200 p-4 flex space-x-2">
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -395,8 +394,8 @@ export default function ChatbotPage() {
                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isLoading || !input.trim()}>
                   <Send className="h-4 w-4" />
                 </Button>
-              </form>
             </div>
+              </form>
           </div>
         </div>
       </section>
@@ -426,7 +425,7 @@ export default function ChatbotPage() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
-                Email
+                Email*
               </Label>
               <Input
                 id="email"
@@ -436,6 +435,7 @@ export default function ChatbotPage() {
                 className="col-span-3"
                 disabled={anonymous}
               />
+              {errors.contact && <p className="col-span-3 col-start-2 text-sm text-red-500">{errors.contact}</p>}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">
@@ -448,7 +448,7 @@ export default function ChatbotPage() {
                 className="col-span-3"
                 disabled={anonymous}
               />
-              {errors.contact && <p className="col-span-3 col-start-2 text-sm text-red-500">{errors.contact}</p>}
+              
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="col-span-4 flex items-center space-x-2">
@@ -607,6 +607,13 @@ export default function ChatbotPage() {
               </div>
 
               <DialogFooter>
+<Link href="/contact" passHref>
+  <Button variant="outline" as="a">
+    <span className="flex items-center">
+      Informasi Kontak Kami
+    </span>
+  </Button>
+</Link>
                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <span className="flex items-center">

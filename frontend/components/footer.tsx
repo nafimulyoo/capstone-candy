@@ -115,8 +115,8 @@ const Footer = () => {
                 <span className="text-gray-400">
                   Hubungi kami di
                   <br />
-                  <a href="mailto:hello@astradigital.id" className="text-gray-400 hover:text-blue-200">
-                    hello@astradigital.id
+                  <a href="mailto:info@astradigital.id" className="text-gray-400 hover:text-blue-200">
+                    info@astradigital.id
                   </a>
 
                 </span>
