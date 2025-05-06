@@ -23,6 +23,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import Link from "next/link"
+import Header from "@/components/header"
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -75,6 +76,9 @@ export default function ContactPage() {
   }
 
   return (
+    <>
+    <Header />
+    
     <main className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
@@ -416,5 +420,6 @@ export default function ContactPage() {
       </section>
       <FloatingChatbot />
     </main>
+    </>
   )
 }

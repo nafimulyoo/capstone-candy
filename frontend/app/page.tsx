@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import FloatingChatbot from "@/components/floating-chatbot"
+import Header from "@/components/header"
 
 export default function Home() {
   // Handle hash navigation when the page loads
@@ -43,6 +44,8 @@ export default function Home() {
   }, [])
 
   return (
+    <>
+    <Header />
     <main className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white">
@@ -343,6 +346,7 @@ export default function Home() {
       </section>
       <FloatingChatbot />
     </main>
+    </>
   )
 }
 

@@ -1,56 +1,78 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertCircle } from "lucide-react";
+import Header from "@/components/header";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setError("")
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // Simple validation
-    if (!formData.email || !formData.password) {
-      setError("Email dan password harus diisi")
-      setIsLoading(false)
-      return
-    }
+    const email = formData.email;
+    const password = formData.password;
 
-    // Simulate authentication
-    setTimeout(() => {
-      // For demo purposes, hardcoded credentials
-      if (formData.email === "admin@astradigital.id" && formData.password === "admin123") {
-        // Set login state in localStorage
-        localStorage.setItem("isLoggedIn", "true")
-        router.push("/dashboard")
+    try {
+      const response = await fetch(`${BACKEND_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("admin", JSON.stringify(data.admin));
+        router.push("/dashboard");
       } else {
-        setError("Email atau password salah")
-        setIsLoading(false)
+        let errorMessage = "Login failed.";
+        if (data.detail && data.detail.error && data.detail.error.message) {
+          errorMessage = data.detail.error.message;
+        }
+        setError(errorMessage);
       }
-    }, 1500)
-  }
+    } catch (err: any) {
+      setError("Network error");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
+    <>
+    
+    <Header/>
     <main className="flex min-h-screen bg-gray-100">
       <div className="flex flex-col md:flex-row w-full">
         {/* Left Side - Login Form */}
@@ -100,7 +122,11 @@ export default function LoginPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <span className="flex items-center">
                     <svg
@@ -163,5 +189,6 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
-  )
+    </>
+  );
 }

@@ -12,12 +12,15 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
 
-  // Check if user is logged in on component mount
   
   useEffect(() => {
     // In a real app, you would check a token in localStorage or cookies
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true"
-    setIsLoggedIn(loggedIn)
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true)
+    } else {
+      setIsLoggedIn(false)
+    }
   }, [])
 
   const toggleMenu = () => {
