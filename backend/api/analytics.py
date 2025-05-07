@@ -10,6 +10,7 @@ from schemas import SessionsResponse, ErrorResponse, SatisfactionResponse, Respo
 from fastapi import Depends, HTTPException, Query, APIRouter
 
 router = APIRouter()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 _session_cache = None                  
@@ -17,15 +18,19 @@ _session_cache_timestamp = None
 CACHE_DURATION = timedelta(minutes=10)
 
 def _load_sessions():
-    """Load chat sessions from Firestore."""
+    """Load chat sessions from Firestore, including their document IDs."""
     global _session_cache, _session_cache_timestamp
     now = datetime.now()
-    
     if _session_cache is None or _session_cache_timestamp is None or now - _session_cache_timestamp > CACHE_DURATION:
         docs = db.collection('chat-session').stream()
-        _session_cache = [doc.to_dict() for doc in docs]
+        logger.info("Loading chat sessions from Firestore")
+        enriched = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['session_id'] = doc.id
+            enriched.append(data)
+        _session_cache = enriched
         _session_cache_timestamp = now
-    
     return _session_cache
 
 def _parse_date(ts: str) -> datetime.date:
