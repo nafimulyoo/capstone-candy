@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Dict, Optional, Literal
 
@@ -53,3 +53,39 @@ class SummaryResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     error: Dict[str, str]
+
+class ChatItem(BaseModel):
+    session_id: str
+    timestamp: datetime
+    name: Optional[str]
+    email: Optional[EmailStr]
+    phone: Optional[str]
+    satisfaction_rate: float
+    userClickToAction: bool
+    topic: str
+
+class ChatsListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    data: List[ChatItem]
+
+class ChatMessage(BaseModel):
+    role: str
+    message: str
+    timestamp: datetime
+    link_to_contact: Optional[bool] = None
+    feedback: Optional[str] = None
+    response_time: Optional[float] = None
+
+class ChatMetadata(BaseModel):
+    timestamp: datetime
+    topic: str
+    userClickToAction: bool
+    name: Optional[str]
+    email: Optional[EmailStr]
+    phone: Optional[str]
+
+class ChatDetailResponse(BaseModel):
+    metadata: ChatMetadata
+    messages: List[ChatMessage]
