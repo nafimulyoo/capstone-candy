@@ -54,6 +54,21 @@ class SummaryResponse(BaseModel):
 class ErrorResponse(BaseModel):
     error: Dict[str, str]
 
+class LLMSettings(BaseModel):
+    prompt_template: Optional[str] = None
+    model: Optional[str] = None
+    temperature: Optional[float] = None
+    top_k: Optional[int] = None
+    max_token: Optional[int] = None
+
+class FileUploadRequest(BaseModel):
+    file: str  # base64 encoded content
+    filename: str
+
+class FileUploadResponse(BaseModel):
+    message: str
+    filename: str
+
 class ChatItem(BaseModel):
     session_id: str
     timestamp: datetime
@@ -89,3 +104,39 @@ class ChatMetadata(BaseModel):
 class ChatDetailResponse(BaseModel):
     metadata: ChatMetadata
     messages: List[ChatMessage]
+
+class HistoryItem(BaseModel):
+    role: str
+    message: str
+    timestamp: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: List[HistoryItem]
+
+class ChatResponse(BaseModel):
+    response: str
+    timestamp: str
+    link_to_contact: bool
+    response_time: float
+
+# Definisikan request dan response schema
+class Metadata(BaseModel):
+    # timestamp: str
+    topic: str
+    userClickToAction: bool
+    name : Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+class Message(BaseModel):
+    role: str
+    message: str
+    timestamp: str
+    link_to_contact: bool = None
+    feedback: str = None
+    response_time: float = None
+
+class ChatSaveRequest(BaseModel):
+    metadata: Metadata
+    messages: List[Message]

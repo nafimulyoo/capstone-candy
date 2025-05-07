@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 _session_cache = None                  
 _session_cache_timestamp = None 
-CACHE_DURATION = timedelta(minutes=10)
+CACHE_DURATION = timedelta(minutes=60)
 
 def _load_sessions():
     """Load chat sessions from Firestore, including their document IDs."""
