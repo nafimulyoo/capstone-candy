@@ -57,7 +57,7 @@ const Header = () => {
               alt="Astra Digital Logo"
               width={40}
               height={20}
-              className="h-7 w-auto"
+            className="h-7 w-auto"
               />
           </Link>
               </div>

@@ -183,8 +183,7 @@ class CANDY:
             )
         )
 
-    def generate_response(self, user_input: str, history: List[Dict]) -> Dict:
-        # Update history with user's input
+    def generate_response(self, user_name: str, user_input: str, history: List[Dict]) -> Dict:
         chat_history = []
         # print("History: ", history)
         for item in history:
@@ -202,6 +201,7 @@ class CANDY:
 
         # Add the new user input to the chat history
 
+        
 
         print("User Message:", user_input)
         print("User History:", chat_history)
@@ -213,9 +213,11 @@ class CANDY:
         start_time = time.perf_counter()
 
         try:
-            parts = [Part.from_text(user_input)]
             # response = chat.send_message(parts)
-            contents = user_input
+            contents = f"User Message: {user_input}\n"
+            if user_name is not "User":
+                contents = f"User Name: {user_name}\n" + contents
+
             contents = contents + "\n\n" + str(history)
             print("Contents: ", contents)
             response = self.model.generate_content(contents=contents)

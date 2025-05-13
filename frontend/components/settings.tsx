@@ -107,14 +107,6 @@ CANDY should respond in a structured format, including a message and a link_to_c
     };
 
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            router.push('/login');
-        }
-    }, [router]);
-
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
 
     // fetch initial settings from backend

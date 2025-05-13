@@ -50,7 +50,7 @@ candy = CANDY()
 @router.post("/ask", response_model=ChatResponse)
 def ask_chatbot(request: ChatRequest):
 
-    result = candy.generate_response(request.message, request.history)
+    result = candy.generate_response(request.name, request.message, request.history)
     # print("Result:", result)
     return ChatResponse(
         response=result["message"],

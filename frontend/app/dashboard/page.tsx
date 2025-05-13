@@ -17,18 +17,30 @@ import History from "@/components/history"
 export default function Dashboard() {
   const router = useRouter()
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("expiredTime");
+    router.push("/login");
+  };
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      router.push('/login');
+      router.push("/login");
     }
-  }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/login');
-  };
+    const expiredTime = localStorage.getItem("expiredTime");
+    if (expiredTime) {
+      const expiredDate = new Date(expiredTime);
+      if (expiredDate < new Date()) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("expiredTime");
+        router.push("/login");
+      }
+    }
+
+  }, [router]);
 
 
   return (
@@ -62,13 +74,13 @@ export default function Dashboard() {
 
             {/* Analytics Tab (renamed from Overview) */}
             <TabsContent value="analytics" className="space-y-6">
-              <Analytics/>
+              <Analytics />
             </TabsContent>
             <TabsContent value="chat-history" className="space-y-6">
-              <History/>
+              <History />
             </TabsContent>
             <TabsContent value="chatbot-settings" className="space-y-6">
-              <Settings/>
+              <Settings />
             </TabsContent>
           </Tabs>
         </div>

@@ -47,7 +47,7 @@ interface ChatResponse {
 }
 
 interface Metadata {
-  timestamp?: string; // Make timestamp optional
+  timestamp?: string;
   topic: string;
   userClickToAction: boolean;
   name?: string;
@@ -68,6 +68,7 @@ interface Message {
 interface ChatSaveRequest {
   metadata: Metadata;
   messages: Message[];
+  session_id: string;
 }
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -81,7 +82,7 @@ export default function ChatbotPage() {
       feedback: null,
       link_to_contact: false,
       timestamp: new Date().toISOString(),
-      isExpanded: false, // Add isExpanded here
+      isExpanded: false,
     },
   ]);
   const [input, setInput] = useState("");
@@ -104,7 +105,6 @@ export default function ChatbotPage() {
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  // Contact form state
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -118,49 +118,42 @@ export default function ChatbotPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
-    // Load chat history from local storage
     const savedChat = localStorage.getItem("chatHistory");
     if (savedChat) {
       setMessages(JSON.parse(savedChat));
     }
 
-    // Generate session ID if not exists
-    const savedSessionId = localStorage.getItem("sessionId");
-    if (savedSessionId) {
-      setSessionId(savedSessionId);
-    } else {
-      const newSessionId = uuidv4();
-      setSessionId(newSessionId);
-      localStorage.setItem("sessionId", newSessionId);
-    }
+    // Generate a new session ID on each page load
+    const currentSessionId: string = uuidv4();
+    setSessionId(currentSessionId);
+    // Optionally, store the session ID in localStorage if you want to persist it across sessions
+    // localStorage.setItem("sessionId", currentSessionId);
 
-    // Handle automatic save on component unmount
     const handleBeforeUnload = async () => {
       localStorage.setItem("chatHistory", JSON.stringify(messages));
-      await handleSaveChat();
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      handleBeforeUnload(); // Ensure save happens on unmount
+      handleBeforeUnload();
     };
   }, []);
 
-  // Save chat history to local storage whenever messages change
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
-  }, [messages]);
+    if (sessionId) {
+      handleSaveChat();
+    }
+  }, [messages, sessionId]);
 
-  // Handle scroll events to show/hide the scroll button
   useEffect(() => {
     const handleScroll = () => {
       if (!chatContainerRef.current) return;
 
       const { scrollTop, scrollHeight, clientHeight } =
         chatContainerRef.current;
-      // Show button if scrolled up at least 100px from bottom
       const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
       setShowScrollButton(isScrolledUp);
     };
@@ -186,13 +179,11 @@ export default function ChatbotPage() {
       contact: "",
     };
 
-    // Name is required unless anonymous
     if (!anonymous && !contactInfo.name.trim()) {
       newErrors.name = "Nama wajib diisi";
       valid = false;
     }
 
-    // Either email or phone is required unless anonymous
     if (!anonymous && !contactInfo.email.trim()) {
       newErrors.contact = "Email wajib diisi";
       valid = false;
@@ -207,10 +198,12 @@ export default function ChatbotPage() {
       setShowContactForm(false);
       setIsFirstMessage(false);
 
-      // Now proceed with sending the message
+      // Capture the current input value here
+      const currentInput = input;
+
       const userMessage = {
         role: "user",
-        message: input,
+        message: currentInput,
         feedback: null,
         timestamp: new Date().toISOString(),
         isExpanded: false,
@@ -219,8 +212,7 @@ export default function ChatbotPage() {
       setInput("");
       setIsLoading(true);
 
-      // Send message to backend and get bot response
-      sendChatMessage(input);
+      sendChatMessage(currentInput); // Use the captured value here
     }
   };
 
@@ -229,10 +221,12 @@ export default function ChatbotPage() {
     setShowContactForm(false);
     setIsFirstMessage(false);
 
-    // Now proceed with sending the message
+    // Capture the current input value here
+    const currentInput = input;
+
     const userMessage = {
       role: "user",
-      message: input,
+      message: currentInput,
       timestamp: new Date().toISOString(),
       isExpanded: false,
     };
@@ -240,8 +234,7 @@ export default function ChatbotPage() {
     setInput("");
     setIsLoading(true);
 
-    // Send message to backend and get bot response
-    sendChatMessage(input);
+    sendChatMessage(currentInput); // Use the captured value here
   };
 
   const handleSendMessage = async (e?: React.FormEvent) => {
@@ -249,13 +242,11 @@ export default function ChatbotPage() {
 
     if (!input.trim()) return;
 
-    // If this is the first message, show the contact form
     if (isFirstMessage) {
       setShowContactForm(true);
       return;
     }
 
-    // Add user message to chat
     const userMessage = {
       role: "user",
       message: input,
@@ -267,12 +258,10 @@ export default function ChatbotPage() {
     setInput("");
     setIsLoading(true);
 
-    // Send message to backend and get bot response
     sendChatMessage(input);
   };
 
   const sendChatMessage = async (message: string) => {
-    // combine name and message
     const formattedMessage = `${contactInfo.name}: ${message}`;
     setIsLoading(true);
     try {
@@ -282,6 +271,7 @@ export default function ChatbotPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          name: contactInfo.name ? contactInfo.name : "User",
           message: formattedMessage,
           history: messages.map((msg) => ({
             role: msg.role,
@@ -298,7 +288,6 @@ export default function ChatbotPage() {
       const data: ChatResponse = await response.json();
 
       console.log("Response data:", data);
-      // Add bot response to chat
       const botResponse = {
         role: "model",
         message: data.response,
@@ -321,7 +310,6 @@ export default function ChatbotPage() {
     setMessages((prev) => {
       return prev.map((msg, i) => {
         if (i === index) {
-          // If already the same feedback, neutralize
           if (msg.feedback === type) {
             return { ...msg, feedback: null };
           } else {
@@ -349,12 +337,10 @@ export default function ChatbotPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
 
-      // Reset form after 5 seconds
       setTimeout(() => {
         setIsSubmitted(false);
         setShowContactDialog(false);
@@ -372,25 +358,28 @@ export default function ChatbotPage() {
   };
 
   const handleSaveChat = async () => {
+    if (!sessionId) {
+      console.warn("Session ID not yet available, skipping save.");
+      return;
+    }
     try {
-      // Define metadata
       const metadata: Metadata = {
-        topic: "General", // Replace with actual topic if available
-        userClickToAction: false, // Replace with actual value if available
+        topic: "General",
+        userClickToAction: false,
         name: contactInfo.name || undefined,
         email: contactInfo.email || undefined,
         phone: contactInfo.phone || undefined,
       };
 
-      // Define request body
       const requestBody: ChatSaveRequest = {
         metadata: metadata,
         messages: messages,
+        session_id: sessionId,
       };
 
+      console.log("Saving chat with session ID:", sessionId);
       console.log(JSON.stringify(requestBody));
 
-      // Make API request
       const response = await fetch(`${API_BASE_URL}/chats/save`, {
         method: "POST",
         headers: {
@@ -399,7 +388,6 @@ export default function ChatbotPage() {
         body: JSON.stringify(requestBody),
       });
 
-      // Check if response is successful
       if (!response.ok) {
         const errorBody = await response.json();
         throw new Error(
@@ -409,10 +397,8 @@ export default function ChatbotPage() {
         );
       }
 
-      // Handle success
       console.log("Chat saved successfully!");
     } catch (error: any) {
-      // Handle error
       console.error("Error saving chat:", error.message);
     }
   };
@@ -425,7 +411,6 @@ export default function ChatbotPage() {
     );
   };
 
-  // Check if response contains contact us message
   const containsContactUsMessage = (message: string) => {
     return (
       message.toLowerCase().includes("hubungi tim kami") ||
@@ -435,7 +420,6 @@ export default function ChatbotPage() {
     );
   };
 
-  // Sample suggested questions
   const suggestedQuestions = [
     "Apa saja layanan yang ditawarkan Astra Digital?",
     "Ceritakan tentang Digital Intelligence",
@@ -445,7 +429,6 @@ export default function ChatbotPage() {
     "Siapa saja klien Astra Digital?",
   ];
 
-  // Add CheckCircle component for success message
   const CheckCircle = ({ size = 24, ...props }: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -575,7 +558,9 @@ export default function ChatbotPage() {
                             onClick={() => toggleExpandMessage(index)}
                             className="text-blue-500 hover:underline text-sm"
                           >
-                            {message.isExpanded ? "Baca lebih sedikit" : "Baca selengkapnya"}
+                            {message.isExpanded
+                              ? "Baca lebih sedikit"
+                              : "Baca selengkapnya"}
                           </button>
                         )}
 
@@ -639,27 +624,23 @@ export default function ChatbotPage() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
-
-
               </div>
 
-                                             {showScrollButton && (
-                      <button
-                        onClick={scrollToBottom}
-                        // bottom-4 would place it over the input. bottom-[72px] accounts for input height (p-4 = ~32px vertical + content + border)
-                        className="absolute bottom-[2px] left-[50%] transform -translate-x-1/2 bg-blue-600 text-white rounded-full p-2 shadow-lg hover:bg-blue-700 transition-colors z-10"
-                        aria-label="Scroll to bottom"
-                      >
-                        <ArrowDown className="h-5 w-5" />
-                      </button>
-                    )}
-                
+              {showScrollButton && (
+                <button
+                  onClick={scrollToBottom}
+                  className="absolute bottom-[2px] left-[50%] transform -translate-x-1/2 bg-blue-600 text-white rounded-full p-2 shadow-lg hover:bg-blue-700 transition-colors z-10"
+                  aria-label="Scroll to bottom"
+                >
+                  <ArrowDown className="h-5 w-5" />
+                </button>
+              )}
+
               {/* Chat Input */}
               <form onSubmit={handleSendMessage}>
                 {messages.length <= 1 && (
                   <div className="mb-2 p-4 ">
                     <div className="flex flex-wrap gap-2">
-                    
                       {suggestedQuestions.map((question, index) => (
                         <button
                           key={index}
@@ -675,11 +656,8 @@ export default function ChatbotPage() {
                     </div>
                   </div>
                 )}
- 
 
                 <div className="border-t border-gray-200 p-4 flex space-x-2">
-                  
-
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -984,7 +962,7 @@ export default function ChatbotPage() {
             )}
           </DialogContent>
         </Dialog>
-        <Button onClick={handleSaveChat}>Save Chat</Button>
+        {/* <Button onClick={handleSaveChat}>Save Chat</Button> */}
       </main>
     </>
   );

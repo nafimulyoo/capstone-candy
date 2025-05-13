@@ -111,6 +111,7 @@ class HistoryItem(BaseModel):
     timestamp: str
 
 class ChatRequest(BaseModel):
+    name: str
     message: str
     history: List[HistoryItem]
 

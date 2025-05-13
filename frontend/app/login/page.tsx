@@ -51,7 +51,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        // set expired time
         localStorage.setItem("token", data.token);
+        const expiredTime = new Date();
+        expiredTime.setMinutes(expiredTime.getMinutes() + 45);
+        localStorage.setItem("expiredTime", expiredTime.toString());
         // localStorage.setItem("admin", JSON.stringify(data.admin));
         router.push("/dashboard");
       } else {

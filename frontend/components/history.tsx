@@ -100,16 +100,9 @@ export default function History() {
     null,
   );
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-    }
-  }, [router]);
-
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("expiredTime");
     router.push("/login");
   };
 
@@ -449,18 +442,16 @@ export default function History() {
                                 selectedChat?.messages.map((msg, idx) => (
                                   <div
                                     key={idx}
-                                    className={`flex ${
-                                      msg.role === "user"
+                                    className={`flex ${msg.role === "user"
                                         ? "justify-end"
                                         : "justify-start"
-                                    }`}
+                                      }`}
                                   >
                                     <div
-                                      className={`max-w-[80%] rounded-lg p-3 ${
-                                        msg.role === "user"
+                                      className={`max-w-[80%] rounded-lg p-3 ${msg.role === "user"
                                           ? "bg-blue-600 text-white"
                                           : "bg-gray-100 text-gray-800"
-                                      }`}
+                                        }`}
                                     >
                                       <div className="flex items-center mb-1">
                                         {msg.role === "user" ? (
@@ -476,14 +467,42 @@ export default function History() {
                                         </span>
                                         {/* Add ThumbsUp icon if feedback is 'positive' */}
                                         {msg.feedback === 'positive' && (
-                                            <ThumbsUp className="ml-2 h-4 w-4 text-green-500" />
+                                          <ThumbsUp className="ml-2 h-4 w-4 text-green-500" />
                                         )}
-                                         {/* Add ThumbsDown icon if feedback is 'negative' */}
+                                        {/* Add ThumbsDown icon if feedback is 'negative' */}
                                         {msg.feedback === 'negative' && (
-                                            <ThumbsDown className="ml-2 h-4 w-4 text-red-500" />
+                                          <ThumbsDown className="ml-2 h-4 w-4 text-red-500" />
                                         )}
                                       </div>
-                                      <p>{msg.message}</p>
+                                      <p>{msg.message.split("\n").map((line, index) => (
+                                        <p key={index} className="">
+                                          {line
+                                            .split(/(\*\*.*?\*\*|\*.*?\*)/)
+                                            .map((part, i) => {
+                                              if (
+                                                part.startsWith("**") &&
+                                                part.endsWith("**")
+                                              ) {
+                                                return (
+                                                  <span key={i} className="font-bold">
+                                                    {part.slice(2, -2)}
+                                                  </span>
+                                                );
+                                              } else if (
+                                                part.startsWith("*") &&
+                                                part.endsWith("*")
+                                              ) {
+                                                return (
+                                                  <span key={i} className="italic">
+                                                    {part.slice(1, -1)}
+                                                  </span>
+                                                );
+                                              }
+                                              return <span key={i}>{part}</span>;
+                                            })}
+                                        </p>
+                                      ))}
+                                      </p>
                                     </div>
                                   </div>
                                 ))}
