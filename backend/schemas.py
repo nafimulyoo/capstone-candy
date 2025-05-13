@@ -13,7 +13,7 @@ class AdminInfo(BaseModel):
 
 class LoginResponse(BaseModel):
     token: str
-    admin: AdminInfo
+    # admin: AdminInfo
 
 class SessionItem(BaseModel):
     date: date
@@ -133,8 +133,8 @@ class Message(BaseModel):
     role: str
     message: str
     timestamp: str
-    link_to_contact: bool = None
-    feedback: str = None
+    link_to_contact: Optional[bool] = None
+    feedback: Optional[str] = None
     response_time: float = None
 
 class ChatSaveRequest(BaseModel):

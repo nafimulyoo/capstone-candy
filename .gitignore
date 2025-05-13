@@ -2,7 +2,9 @@
 backend/capstone-candy-firebase-adminsdk-fbsvc-6c3d6e5e51.json
 backend/capstone-candy-v2-firebase-adminsdk-fbsvc-cd20cdb99c.json
 backend/capstone-candy-v2.json
+backend.adi-internship-f821aca48222.json
 backend/capstone-candy-v2-firebase-*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

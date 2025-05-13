@@ -25,36 +25,40 @@ def list_chats(
         items: List[ChatItem] = []
 
         for s in sessions:
-            ts = datetime.fromisoformat(s['timestamp'].replace('Z', '+00:00'))
-            if start and ts.date() < start:
-                continue
-            if end and ts.date() > end:
-                continue
-            if contactOnly and not s.get('name'):
-                continue
-            if ctaOnly and not s.get('userClickToAction', False):
-                continue
+            try:
+                ts = datetime.fromisoformat(s['timestamp'].replace('Z', '+00:00'))
+                if start and ts.date() < start:
+                    continue
+                if end and ts.date() > end:
+                    continue
+                if contactOnly and not s.get('name'):
+                    continue
+                if ctaOnly and not s.get('userClickToAction', False):
+                    continue
 
-            pos = neg = 0
-            for msg in s.get('chat_history', []):
-                if msg.get('role') == 'bot' and 'feedback' in msg:
-                    if msg['feedback'] == 'positive':
-                        pos += 1
-                    elif msg['feedback'] == 'negative':
-                        neg += 1
-            total = pos + neg
-            rate = (pos / total) if total > 0 else 0.0
+                pos = neg = 0
+                for msg in s.get('chat_history', []):
+                    if msg.get('role') == 'bot' and 'feedback' in msg:
+                        if msg['feedback'] == 'positive':
+                            pos += 1
+                        elif msg['feedback'] == 'negative':
+                            neg += 1
+                total = pos + neg
+                rate = (pos / total) if total > 0 else 0.0
 
-            items.append(ChatItem(
-                session_id=s['session_id'],
-                timestamp=ts,
-                name=s.get('name'),
-                email=s.get('email'),
-                phone=s.get('phone'),
-                satisfaction_rate=round(rate, 2),
-                userClickToAction=s.get('userClickToAction', False),
-                topic=s.get('topic', 'Unknown')
-            ))
+                items.append(ChatItem(
+                    session_id=s['session_id'],
+                    timestamp=ts,
+                    name=s.get('name'),
+                    email=s.get('email'),
+                    phone=s.get('phone'),
+                    satisfaction_rate=round(rate, 2),
+                    userClickToAction=s.get('userClickToAction', False),
+                    topic=s.get('topic', 'Unknown')
+                ))
+            except Exception as e:
+                logger.error("Error processing session %s: %s", s['session_id'], str(e))
+                continue
 
         reverse = (order == 'desc')
         if sort == 'time':

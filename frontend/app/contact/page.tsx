@@ -21,6 +21,7 @@ import {
   Send,
   CheckCircle,
   MessageSquare,
+  Candy,
 } from "lucide-react"
 import Link from "next/link"
 import Header from "@/components/header"
@@ -103,7 +104,7 @@ export default function ContactPage() {
 
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
             <div className="bg-blue-600 text-white p-4 flex items-center">
-              <MessageSquare className="mr-2 h-5 w-5" />
+              <Candy className="mr-2 h-5 w-5" />
               <h3 className="font-semibold">Chat dengan CANDY</h3>
             </div>
             <div className="p-6">
@@ -115,7 +116,7 @@ export default function ContactPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/chatbot">
                   <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
-                    <MessageSquare className="mr-2 h-4 w-4" /> Tanya CANDY Sekarang
+                    <Candy className="mr-1 h-4 w-4" /> Tanya CANDY Sekarang
                   </Button>
                 </Link>
               </div>
@@ -134,7 +135,7 @@ export default function ContactPage() {
 
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-blue-600">
+                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-white">
                     <MapPin size={24} />
                   </div>
                   <div>
@@ -150,7 +151,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-blue-600">
+                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-white">
                     <Mail size={24} />
                   </div>
                   <div>
@@ -167,7 +168,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-blue-600">
+                  <div className="bg-blue-100 rounded-full p-3 mr-4 text-white">
                     <Phone size={24} />
                   </div>
                   <div>

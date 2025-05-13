@@ -65,12 +65,15 @@ def get_sessions(range_type: str, start_date, end_date):
         start, end = start_date, end_date
         counts = Counter()
         for s in sessions:
-            dt = _parse_date(s['timestamp'])
-            if start <= dt <= end:
-                key = dt if range_type == 'daily' else (
-                    dt.replace(day=1) if range_type == 'monthly' else dt.replace(month=1, day=1)
-                )
-                counts[key] += 1
+            try:
+                dt = _parse_date(s['timestamp'])
+                if start <= dt <= end:
+                    key = dt if range_type == 'daily' else (
+                        dt.replace(day=1) if range_type == 'monthly' else dt.replace(month=1, day=1)
+                    )
+                    counts[key] += 1
+            except Exception as e:
+                logger.error("Error parsing date for session %s: %s", s.get('session_id'), str(e))
         bins = _generate_date_bins(range_type, start, end)
         data = [{
             'date': b.isoformat(),
@@ -91,14 +94,17 @@ def get_leads(range_type: str, start_date, end_date):
         start, end = start_date, end_date
         counts = Counter()
         for s in sessions:
-            dt = _parse_date(s['timestamp'])
-            if start <= dt <= end:
-                key = dt if range_type == 'daily' else (
-                    dt.replace(day=1) if range_type == 'monthly' else dt.replace(month=1, day=1)
-                )
-                name = s.get('name', '').strip()
-                if name:
-                    counts[key] += 1
+            try:
+                dt = _parse_date(s['timestamp'])
+                if start <= dt <= end:
+                    key = dt if range_type == 'daily' else (
+                        dt.replace(day=1) if range_type == 'monthly' else dt.replace(month=1, day=1)
+                    )
+                    name = s.get('name', '').strip()
+                    if name:
+                        counts[key] += 1
+            except Exception as e:
+                logger.error("Error parsing date for session %s: %s", s.get('session_id'), str(e))
         bins = _generate_date_bins(range_type, start, end)
         data = [{
             'date': b.isoformat(),
@@ -118,19 +124,21 @@ def get_satisfaction(range_type: str, start_date, end_date):
         sessions = _load_sessions()
         stats = defaultdict(lambda: {'pos': 0, 'neg': 0, 'total': 0})
         for s in sessions:
-            session_date = _parse_date(s['timestamp'])
-            if start_date <= session_date <= end_date:
-                key_date = session_date if range_type == 'daily' else (
-                    session_date.replace(day=1) if range_type == 'monthly' else session_date.replace(month=1, day=1)
-                )
-                for msg in s.get('chat_history', []):
-                    if msg.get('role') == 'bot' and 'feedback' in msg:
-                        if msg['feedback'] == 'positive':
-                            stats[key_date]['pos'] += 1
-                            stats[key_date]['total'] += 1
-                        elif msg['feedback'] == 'negative':
-                            stats[key_date]['neg'] += 1
-                            stats[key_date]['total'] += 1
+            try:
+                session_date = _parse_date(s['timestamp'])
+                if start_date <= session_date <= end_date:
+                    key_date = session_date if range_type == 'daily' else (
+                        session_date.replace(day=1) if range_type == 'monthly' else session_date.replace(month=1, day=1)
+                    )
+                    for msg in s.get('chat_history', []):
+                        if msg.get('role') == 'bot' and 'feedback' in msg:
+                            if msg['feedback'] == 'positive':
+                                stats[key_date]['pos'] += 1
+                                stats[key_date]['total'] += 1
+                            elif msg['feedback'] == 'negative':
+                                stats[key_date]['neg'] += 1
+            except Exception as e:
+                logger.error("Error processing session %s: %s", s.get('session_id'), str(e))
         bins = _generate_date_bins(range_type, start_date, end_date)
         result = []
         for b in bins:
@@ -157,17 +165,20 @@ def get_response_times(range_type: str, start_date=None, end_date=None):
         sessions = _load_sessions()
         stats = defaultdict(lambda: {'sum': 0.0, 'count': 0})
         for s in sessions:
-            for msg in s.get('chat_history', []):
-                if msg.get('role') == 'bot' and 'response_time' in msg:
-                    ts = _parse_date(msg['timestamp'])
-                    if start_date and end_date:
-                        if not (start_date <= ts <= end_date):
-                            continue
-                    key_date = ts if range_type == 'daily' else (
-                        ts.replace(day=1) if range_type == 'monthly' else ts.replace(month=1, day=1)
-                    )
-                    stats[key_date]['sum'] += msg['response_time']
-                    stats[key_date]['count'] += 1
+            try:
+                for msg in s.get('chat_history', []):
+                    if msg.get('role') == 'bot' and 'response_time' in msg:
+                        ts = _parse_date(msg['timestamp'])
+                        if start_date and end_date:
+                            if not (start_date <= ts <= end_date):
+                                continue
+                        key_date = ts if range_type == 'daily' else (
+                            ts.replace(day=1) if range_type == 'monthly' else ts.replace(month=1, day=1)
+                        )
+                        stats[key_date]['sum'] += msg['response_time']
+                        stats[key_date]['count'] += 1
+            except Exception as e:
+                logger.error("Error processing session %s: %s", s.get('session_id'), str(e))
         bins = _generate_date_bins(range_type, start_date or min(stats), end_date or max(stats))
         result = []
         for b in bins:
@@ -190,9 +201,12 @@ def get_topics(start_date=None, end_date=None):
         
         # Filter sessions based on the date range
         for s in sessions:
-            session_date = _parse_date(s['timestamp'])
-            if start_date <= session_date <= end_date:
-                topics[s.get('topic', 'Unknown')] += 1
+            try:
+                session_date = _parse_date(s['timestamp'])
+                if start_date <= session_date <= end_date:
+                    topics[s.get('topic', 'Unknown')] += 1
+            except Exception as e:
+                logger.error("Error processing session %s: %s", s.get('session_id'), str(e))
         
         return dict(topics)
     except Exception as e:
@@ -208,15 +222,19 @@ def get_cta_clicks(range_type: str, start_date=None, end_date=None):
         sessions = _load_sessions()
         counts = Counter()
         for s in sessions:
-            ts = _parse_date(s['timestamp'])
-            if start_date and end_date:
-                if not (start_date <= ts <= end_date):
-                    continue
-            if s.get('userClickToAction'):
-                key_date = ts if range_type == 'daily' else (
-                    ts.replace(day=1) if range_type == 'monthly' else ts.replace(month=1, day=1)
-                )
-                counts[key_date] += 1
+            try:
+                ts = _parse_date(s['timestamp'])
+                if start_date and end_date:
+                    if not (start_date <= ts <= end_date):
+                        continue
+                if s.get('userClickToAction'):
+                    key_date = ts if range_type == 'daily' else (
+                        ts.replace(day=1) if range_type == 'monthly' else ts.replace(month=1, day=1)
+                    )
+                    counts[key_date] += 1
+            except Exception as e:
+                logger.error("Error processing session %s: %s", s.get('session_id'), str(e))
+        # Generate date bins for the specified range
         bins = _generate_date_bins(range_type, start_date or min(counts), end_date or max(counts))
         data = [{'date': b.isoformat(), 'count': counts.get(b, 0)} for b in bins]
         return data

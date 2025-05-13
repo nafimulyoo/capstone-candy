@@ -49,15 +49,18 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
+          <div className="flex items-center">
+
           <Link href="/" className="flex items-center">
             <Image
               src="https://static.wikia.nocookie.net/logopedia/images/2/2a/Astra_Digital.svg"
               alt="Astra Digital Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
-            />
+              width={40}
+              height={20}
+              className="h-7 w-auto"
+              />
           </Link>
+              </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">

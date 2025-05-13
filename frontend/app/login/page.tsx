@@ -52,7 +52,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("admin", JSON.stringify(data.admin));
+        // localStorage.setItem("admin", JSON.stringify(data.admin));
         router.push("/dashboard");
       } else {
         let errorMessage = "Login failed.";

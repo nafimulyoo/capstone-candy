@@ -36,6 +36,7 @@ def login(email: EmailStr, password: str):
         "password": password,
         "returnSecureToken": True
     }
+
     resp = requests.post(url, json=payload)
     if resp.status_code != 200:
         logger.error("Login failed for email %s: Invalid email or password", email)
@@ -43,27 +44,36 @@ def login(email: EmailStr, password: str):
             status_code=401,
             detail={"error": {"code": 'ERR_UNAUTHORIZED', "message": "Invalid email or password"}}
         )
+
     
     body = resp.json()
     id_token = body["idToken"]
 
-    doc = db.collection("admins").document(body["localId"]).get()
-    if not doc.exists:
-        logger.error("Admin profile not found for localId %s", body["localId"])
-        raise HTTPException(
-            status_code=404,
-            detail={"error": {"code": 'ERR_NOT_FOUND', "message": "Admin profile not found"}}
-        )
+    # doc = db.collection("admins").document(body["localId"]).get()
+    # if not doc.exists:
+    #     logger.error("Admin profile not found for localId %s", body["localId"])
+    #     raise HTTPException(
+    #         status_code=404,
+    #         detail={"error": {"code": 'ERR_NOT_FOUND', "message": "Admin profile not found"}}
+    #     )
     
-    prof = doc.to_dict()
+    # prof = doc.to_dict()
 
+    print({
+        "token": id_token,
+        # "admin": {
+        #     "id": prof["id"],
+        #     "email": prof["email"],
+        #     "nama": prof["nama"]
+        # }
+    })
     return {
         "token": id_token,
-        "admin": {
-            "id": prof["id"],
-            "email": prof["email"],
-            "nama": prof["nama"]
-        }
+        # "admin": {
+        #     "id": prof["id"],
+        #     "email": prof["email"],
+        #     "nama": prof["nama"]
+        # }
     }
 
 @router.post("/login", response_model=LoginResponse, tags=["Auth"])

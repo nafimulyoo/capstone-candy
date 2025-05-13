@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { format, parseISO } from "date-fns";
 import type { DateRange } from "react-day-picker";
+import { saveAs } from "file-saver";
 
 // Define the types to match your backend schemas
 interface SessionItem {
@@ -71,7 +72,8 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export default function Analytics() {
-  const [timePeriod, setTimePeriod] = useState<"daily" | "monthly" | "yearly">("monthly");
+  const [timePeriod, setTimePeriod] =
+    useState<"daily" | "monthly" | "yearly">("monthly");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2024, 5, 1),
     to: new Date(2025, 5, 6),
@@ -79,9 +81,11 @@ export default function Analytics() {
 
   const [sessionsData, setSessionsData] = useState<SessionItem[]>([]);
   const [leadsData, setLeadsData] = useState<SessionItem[]>([]);
-  const [satisfactionData, setSatisfactionData] = useState<SatisfactionItem[]>([]);
-  const [responseTimeData, setResponseTimeData] = useState<ResponseTimeItem[]>([]);
-  const [topicsData, setTopicsData] = useState<TopicItem | null>(null);  // Allow null
+  const [satisfactionData, setSatisfactionData] =
+    useState<SatisfactionItem[]>([]);
+  const [responseTimeData, setResponseTimeData] =
+    useState<ResponseTimeItem[]>([]);
+  const [topicsData, setTopicsData] = useState<TopicItem | null>(null); // Allow null
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,12 +116,24 @@ export default function Analytics() {
           topicsResponse,
           summaryResponse,
         ] = await Promise.all([
-          fetch(sessionUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()),
-          fetch(leadsUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()),
-          fetch(satisfactionUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()),
-          fetch(responseTimesUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()),
-          fetch(topicsUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()), 
-          fetch(summaryUrl, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,},}).then((res) => res.json()),
+          fetch(sessionUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
+          fetch(leadsUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
+          fetch(satisfactionUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
+          fetch(responseTimesUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
+          fetch(topicsUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
+          fetch(summaryUrl, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }).then((res) => res.json()),
         ]);
 
         setSessionsData(sessionsResponse.data);
@@ -142,7 +158,7 @@ export default function Analytics() {
   // Function to transform topicsData into the format needed for the tag cloud
   const transformTopicsData = (topics: TopicItem | null) => {
     if (!topics) {
-      return [];  // Return empty array if topics is null or undefined
+      return []; // Return empty array if topics is null or undefined
     }
     return Object.entries(topics).map(([topic, count]) => ({
       value: topic,
@@ -171,7 +187,6 @@ export default function Analytics() {
     </span>
   );
 
-
   const totalSessions = summaryData?.total_sessions || 0;
   const sessionsChange = summaryData?.sessions_change || 0;
   const totalLeads = summaryData?.total_leads || 0;
@@ -180,6 +195,44 @@ export default function Analytics() {
   const ctaChange = summaryData?.cta_change || 0;
   const avgSatisfaction = summaryData?.avg_satisfaction || 0;
   const satisfactionChange = summaryData?.satisfaction_change || 0;
+
+  const getTickFormatter = () => {
+    if (timePeriod === "monthly") {
+      return (date: string) => format(parseISO(date), "yyyy-MM");
+    }
+    if (timePeriod === "yearly") {
+      return (date: string) => format(parseISO(date), "yyyy");
+    }
+    return (date: string) => format(parseISO(date), "MMM dd, yyyy");
+  };
+
+  const tickFormatter = getTickFormatter();
+
+  const exportToCSV = () => {
+    let csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        [
+          "Date",
+          "Sessions",
+          "CTA Clicks",
+          "Satisfaction Rate",
+          "Average Response Time (s)",
+        ],
+        ...sessionsData.map((session, index) => [
+          session.date,
+          session.count,
+          leadsData[index]?.count || 0,
+          satisfactionData[index]?.rate || 0,
+          responseTimeData[index]?.average_time || 0,
+        ]),
+      ]
+        .map((e) => e.join(","))
+        .join("\n");
+
+    // Download the file
+    saveAs(csvContent, "analytics_data.csv");
+  };
 
   return (
     <>
@@ -241,16 +294,11 @@ export default function Analytics() {
           </div>
         </div>
 
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button variant="outline" className="flex items-center gap-2" onClick={exportToCSV}>
           <Download className="h-4 w-4" />
           Export to CSV
         </Button>
       </div>
-      {
-
-        
-      }
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -503,7 +551,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")}
+                  tickFormatter={tickFormatter}
                 />
                 <YAxis />
                 <Tooltip
@@ -555,7 +603,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")}
+                  tickFormatter={tickFormatter}
                 />
                 <YAxis />
                 <Tooltip
@@ -607,7 +655,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")}
+                  tickFormatter={tickFormatter}
                 />
                 <YAxis />
                 <Tooltip
@@ -659,7 +707,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(date) => format(parseISO(date), "MMM dd, yyyy")}
+                  tickFormatter={tickFormatter}
                 />
                 <YAxis />
                 <Tooltip
