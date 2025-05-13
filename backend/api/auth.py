@@ -1,7 +1,6 @@
 import os
 import logging
 import requests
-from pydantic import EmailStr
 from dotenv import load_dotenv
 from firebase_config import db
 from fastapi import APIRouter, HTTPException, Depends
@@ -29,7 +28,7 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(security)
     return decoded
 
 
-def login(email: EmailStr, password: str):
+def login(email: str, password: str):
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={API_KEY}"
     payload = {
         "email": email,

@@ -1,14 +1,14 @@
 from datetime import date, datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Literal
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     
 class AdminInfo(BaseModel):
     id: str
-    email: EmailStr
+    email: str
     nama: str
 
 class LoginResponse(BaseModel):
@@ -73,7 +73,7 @@ class ChatItem(BaseModel):
     session_id: str
     timestamp: datetime
     name: Optional[str]
-    email: Optional[EmailStr]
+    email: Optional[str]
     phone: Optional[str]
     satisfaction_rate: float
     userClickToAction: bool
@@ -98,7 +98,7 @@ class ChatMetadata(BaseModel):
     topic: str
     userClickToAction: bool
     name: Optional[str]
-    email: Optional[EmailStr]
+    email: Optional[str]
     phone: Optional[str]
 
 class ChatDetailResponse(BaseModel):

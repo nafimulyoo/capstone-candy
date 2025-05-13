@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Globe } from "lucide-react"
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Globe, Candy } from "lucide-react"
 import {
   MessageSquare,
 } from "lucide-react"
@@ -99,7 +99,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Punya Pertanyaan?</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
-                <MessageSquare size={20} className="mr-2 text-gray-400 mt-1" />
+                <Candy size={20} className="mr-2 text-gray-400 mt-1" />
                 <span className="text-gray-400">
                   Tanya chatbot kami
                   <br />
