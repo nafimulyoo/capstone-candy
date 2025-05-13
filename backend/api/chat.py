@@ -20,10 +20,10 @@ router = APIRouter()
 #     return chat_ref.id
 
 
-def save_chat_to_firestore(metadata, messages):
-    chats_ref = db.collection("chat-session-test")
-    chat_ref = chats_ref.document()
-
+def save_chat_to_firestore(session_id, metadata, messages):
+    chats_ref = db.collection("chat-session")
+    # create a new document with the session_id if it doesn't exist
+    chat_ref = chats_ref.document(session_id)
 
     # Start with required fields
     chat_data = {
@@ -63,6 +63,7 @@ def ask_chatbot(request: ChatRequest):
 def save_chat(request: ChatSaveRequest):
     try:
         metadata = request.metadata.dict()
+        session_id = request.session_id
         # Ganti timestamp dengan waktu saat ini (format ISO 8601)
         # metadata["timestamp"] = datetime.utcnow().isoformat() + "Z"
         metadata["timestamp"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -75,7 +76,7 @@ def save_chat(request: ChatSaveRequest):
             return {"message": "Only one or zero message to save, not saving."}
 
         print("Messages:", messages)
-        chat_id = save_chat_to_firestore(metadata, messages)
+        chat_id = save_chat_to_firestore(session_id, metadata, messages)
 
         return {"message": "Chat saved"}
     except Exception as e:

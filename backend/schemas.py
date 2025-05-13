@@ -138,5 +138,6 @@ class Message(BaseModel):
     response_time: float = None
 
 class ChatSaveRequest(BaseModel):
+    session_id: str
     metadata: Metadata
     messages: List[Message]
