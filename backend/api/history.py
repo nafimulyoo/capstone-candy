@@ -11,8 +11,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 def list_chats(
-    page: int,
-    limit: int,
+    # page: int,
+    # limit: int,
     sort: str,
     order: str,
     start: Optional[date],
@@ -63,20 +63,26 @@ def list_chats(
         reverse = (order == 'desc')
         if sort == 'time':
             items.sort(key=lambda x: x.timestamp, reverse=reverse)
-        else:
-            items.sort(key=lambda x: x.satisfaction_rate, reverse=reverse)
+
+        elif sort == 'name':
+            items = [item for item in items if item.name]
+            items.sort(key=lambda x: x.name.lower(), reverse=reverse)
+
+        elif sort == 'topic':
+            items = [item for item in items if item.topic]
+            items.sort(key=lambda x: x.topic.lower(), reverse=reverse)
 
         # paginate
         total = len(items)
-        start_idx = (page - 1) * limit
-        end_idx = start_idx + limit
-        page_items = items[start_idx:end_idx]
+        # start_idx = (page - 1) * limit
+        # end_idx = start_idx + limit
+        # page_items = items[start_idx:end_idx]
 
         return ChatsListResponse(
             total=total,
-            page=page,
-            limit=limit,
-            data=page_items
+            # page=page,
+            # limit=limit,
+            data=items
         )
     except Exception as e:
         logger.error("Could not list chats: %s", str(e))
@@ -134,16 +140,17 @@ def get_chat_detail(
     dependencies=[Depends(auth.validate_token)]
 )
 def list_chats_api(
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1),
-    sort: str = Query('time', regex='^(time|satisfaction)$'),
+    # page: int = Query(1, ge=1),
+    # limit: int = Query(20, ge=1),
+    sort: str = Query('time'),
     order: str = Query('desc', regex='^(asc|desc)$'),
     start: Optional[date] = Query(None),
     end: Optional[date] = Query(None),
     contactOnly: bool = Query(False),
     ctaOnly: bool = Query(False),
 ):
-    return list_chats(page, limit, sort, order, start, end, contactOnly, ctaOnly)
+    # return list_chats(page, limit, sort, order, start, end, contactOnly, ctaOnly)
+    return list_chats(sort, order, start, end, contactOnly, ctaOnly)
 
 @router.get(
     "/{session_id}",

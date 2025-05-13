@@ -35,6 +35,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, parseISO, subDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { saveAs } from "file-saver";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 // Define the types based on your backend schemas
 interface ChatItem {
@@ -84,9 +85,9 @@ export default function History() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const itemsPerPage = 20;
+  const [sortColumn, setSortColumn] = useState<string | null>("time");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
@@ -99,6 +100,7 @@ export default function History() {
   const [selectedChat, setSelectedChat] = useState<ChatDetailResponse | null>(
     null,
   );
+  const [selectedUserCategory, setSelectedUserCategory] = useState("all");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -111,10 +113,10 @@ export default function History() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      let url = `${API_BASE_URL}/chats?page=${currentPage}&limit=${itemsPerPage}`;
+      let url = `${API_BASE_URL}/chats?`; // Removed pagination params
 
       if (sortColumn) {
-        url += `&sort=${sortColumn === "time" ? "time" : "satisfaction"}`;
+        url += `&sort=${sortColumn}`;
         url += `&order=${sortDirection}`;
       }
 
@@ -151,10 +153,11 @@ export default function History() {
 
   useEffect(() => {
     fetchChatHistory();
-  }, [currentPage, sortColumn, sortDirection, dateRange, showContactOnly]);
+  }, [sortColumn, sortDirection, dateRange, showContactOnly]); // Removed currentPage
 
   // Function to fetch chat detail by session_id
   const fetchChatDetail = async (session_id: string) => {
+    setSelectedChat(null);
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_BASE_URL}/chats/${session_id}`, {
@@ -207,7 +210,7 @@ export default function History() {
     let filtered = [...chatHistory];
 
     // Remove anonymous chats
-    filtered = filtered.filter((chat) => chat.name !== null);
+    // filtered = filtered.filter((chat) => chat.name !== null);
 
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
@@ -225,20 +228,25 @@ export default function History() {
       );
     }
 
-    // Handle sorting - only sort if `sortColumn` is not null and the column is 'name'
-    if (sortColumn === "name") {
-      filtered = [...filtered].sort((a, b) => {
-        const nameA = a.name || "";
-        const nameB = b.name || "";
-        return sortDirection === "asc"
-          ? nameA.localeCompare(nameB)
-          : nameB.localeCompare(a.name || "");
-      });
+    // select user category
+    if (selectedUserCategory === "leads") {
+      filtered = filtered.filter((chat) => chat.name !== null);
+    } else if (selectedUserCategory === "anonymous") {
+      filtered = filtered.filter((chat) => chat.name === null);
     }
 
-    return filtered;
-  }, [chatHistory, searchTerm, topicFilter, sortColumn, sortDirection]);
+    // Back to page 1
+    setCurrentPage(1);
 
+    return filtered;
+  }, [chatHistory, searchTerm, topicFilter, sortColumn, sortDirection, selectedUserCategory]);
+
+  // Paginate the filtered chats
+  const paginatedChats = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredChats.slice(startIndex, endIndex);
+  }, [filteredChats, currentPage, itemsPerPage]);
 
   const exportToCSV = () => {
     let csvContent =
@@ -342,17 +350,20 @@ export default function History() {
                 className="w-[200px]"
               />
             </div>
-          </div>
 
-          <div className="flex items-center">
-            <Input
-              type="checkbox"
-              id="contact-only"
-              checked={showContactOnly}
-              onChange={(e) => setShowContactOnly(e.target.checked)}
-              className="mr-2 pt-2" // Adjusted class for alignment
-            />
-            <Label htmlFor="contact-only">Leads Only</Label>
+            <div className="grid gap-2">
+              <Label htmlFor="to-date">User Category</Label>
+              <Select value={selectedUserCategory} onValueChange={setSelectedUserCategory}>
+                <SelectTrigger id="user-category" className="w-40">
+                  <SelectValue placeholder="Select a model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="leads">Leads Only</SelectItem>
+                  <SelectItem value="anonymous">Anonymous Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -389,10 +400,10 @@ export default function History() {
                 </tr>
               </thead>
               <tbody>
-                {filteredChats.map((chat) => (
+                {paginatedChats.map((chat) => (
                   <tr key={chat.session_id} className="border-b">
                     <td className="p-4 align-middle">{chat.session_id}</td>
-                    <td className="p-4 align-middle">{chat.name || "-"}</td>
+                    <td className="p-4 align-middle">{chat.name || "Anonymous Chat"}</td>
                     <td className="p-4 align-middle">
                       {format(parseISO(chat.timestamp), "LLL dd, yyyy HH:mm")}
                     </td>
@@ -443,14 +454,14 @@ export default function History() {
                                   <div
                                     key={idx}
                                     className={`flex ${msg.role === "user"
-                                        ? "justify-end"
-                                        : "justify-start"
+                                      ? "justify-end"
+                                      : "justify-start"
                                       }`}
                                   >
                                     <div
                                       className={`max-w-[80%] rounded-lg p-3 ${msg.role === "user"
-                                          ? "bg-blue-600 text-white"
-                                          : "bg-gray-100 text-gray-800"
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-gray-100 text-gray-800"
                                         }`}
                                     >
                                       <div className="flex items-center mb-1">
@@ -475,7 +486,7 @@ export default function History() {
                                         )}
                                       </div>
                                       <p>{msg.message.split("\n").map((line, index) => (
-                                        <p key={index} className="">
+                                        <span key={index} className="">
                                           {line
                                             .split(/(\*\*.*?\*\*|\*.*?\*)/)
                                             .map((part, i) => {
@@ -500,7 +511,7 @@ export default function History() {
                                               }
                                               return <span key={i}>{part}</span>;
                                             })}
-                                        </p>
+                                        </span>
                                       ))}
                                       </p>
                                     </div>
@@ -522,7 +533,7 @@ export default function History() {
           <div className="text-sm text-gray-500">
             Showing {(currentPage - 1) * itemsPerPage + 1}-
             {Math.min(currentPage * itemsPerPage, filteredChats.length)} of{" "}
-            {totalChats} chats
+            {filteredChats.length} chats
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -534,7 +545,7 @@ export default function History() {
               Previous
             </Button>
             <div className="text-sm">
-              Page {currentPage} of {Math.ceil(totalChats / itemsPerPage)}
+              Page {currentPage} of {Math.ceil(filteredChats.length / itemsPerPage)}
             </div>
             <Button
               variant="outline"
@@ -543,11 +554,13 @@ export default function History() {
                 setCurrentPage((prev) =>
                   Math.min(
                     prev + 1,
-                    Math.ceil(totalChats / itemsPerPage),
+                    Math.ceil(filteredChats.length / itemsPerPage),
                   )
                 )
               }
-              disabled={currentPage === Math.ceil(totalChats / itemsPerPage)}
+              disabled={
+                currentPage === Math.ceil(filteredChats.length / itemsPerPage)
+              }
             >
               Next
             </Button>

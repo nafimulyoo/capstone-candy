@@ -81,8 +81,8 @@ class ChatItem(BaseModel):
 
 class ChatsListResponse(BaseModel):
     total: int
-    page: int
-    limit: int
+    # page: int
+    # limit: int
     data: List[ChatItem]
 
 class ChatMessage(BaseModel):
