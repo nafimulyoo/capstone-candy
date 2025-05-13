@@ -24,7 +24,7 @@ RUN pip install --upgrade google-cloud-aiplatform
 COPY . .
 
 # Expose port (informational only, actual port is managed by gluetun)
-EXPOSE 8000
+EXPOSE 8080
 
 # Run the application
-CMD ["uvicorn", "index:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--workers", "10"]
+CMD ["uvicorn", "index:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--workers", "10"]

@@ -37,7 +37,7 @@ import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Header from "@/components/header";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 interface ChatResponse {
   response: string;
