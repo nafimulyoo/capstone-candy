@@ -5,7 +5,9 @@ from typing import List, Dict
 import json
 import time
 from firebase_config import db
+from langdetect import detect
 
+sessions = {}
 
 RESPONSE_SCHEMA = {
     "type": "OBJECT",
@@ -40,6 +42,7 @@ SYSTEM_INSTRUCTION = """
     * Digital Technology: CANDY should be knowledgeable about digital technology trends, applications, innovations, and their impact on businesses.
     * Digital Transformation: CANDY should understand digital transformation initiatives and Astra Digital's approach to digital transformation.
     * General Knowledge: CANDY should have a general understanding of technology and business concepts, but it should not provide specific technical support or troubleshooting.
+    * Data Science, Data Engineering, Machine Learning, AI, IT Knowledge, Data Strategy, Business Analytics, and Other Field that Astra Digital excels at
     
     ## Core Capabilities:
 
@@ -57,6 +60,8 @@ SYSTEM_INSTRUCTION = """
     *   **Language:** Mirror the language of \"# User's Current Message\" at every turn. If the user uses English, respond in English. If the user uses Bahasa Indonesia, respond in Bahasa Indonesia. 
     *   **Advertising:** Always provide a positive and informative response about Astra Digital's services and solutions. Avoid using overly promotional language or making exaggerated claims. Always provide accurate and relevant information about Astra Digital's services and solutions.
     *   **Out-of-Scope:** Politely decline to answer questions that are unrelated to Astra Digital, its services, or its expertise.
+    *   **Always include relevant follow-up for initiate further conversation and keep user engagement**
+    *   **Utilize Markdown formatting (bold, italic, bullet points for list, number points for sequence)**
     *   **"Hubungi Kami":** When appropriate, offer a "Hubungi Kami" (Contact Us) option to connect the user with a human representative for more personalized assistance. And include set link_to_contact to true.
 
     ## Answer Format:
@@ -89,12 +94,13 @@ SYSTEM_INSTRUCTION = """
 
 
 class CANDY:
+    sessions = {}
     def __init__(
         self
     ):
         vertexai.init(project="elisa-smart-analysis", location="us-central1")
         
-        ref = db.collection("llm_settings").document("llm_settings")
+        ref = db.collection("llm_settings").document("1uZu27qUE5KxoMRhoQX6")
         current_settings = ref.get().to_dict()
 
         try:
@@ -106,7 +112,7 @@ class CANDY:
                 "top_p": 0.8,
             }
             self.system_instruction = current_settings["prompt_template"]
-            self.model = current_settings["model"]
+            self.model_type = current_settings["model"]
 
         except:
             self.generation_config = {
@@ -116,7 +122,7 @@ class CANDY:
                 "top_p": 0.8,
             }
             self.system_instruction = SYSTEM_INSTRUCTION
-            self.model = "gemini-2.5-flash-preview-04-17"
+            self.model_type = "gemini-2.5-flash-preview-04-17"
 
 
         self.rag_config = {
@@ -133,7 +139,7 @@ class CANDY:
         self.rag_tool = self._create_rag_tool()
 
         self.model = GenerativeModel(
-            model_name=self.model,
+            model_name=self.model_type,
             system_instruction=self.system_instruction,
             tools=[self.rag_tool],
             # generation_config=GenerationConfig(**self.generation_config)
@@ -144,7 +150,49 @@ class CANDY:
         )
     
     
-    
+    def _detect_language(text):
+        """
+        Detects the language of a string and returns the language name.
+
+        Args:
+            text: The string to detect the language of.
+
+        Returns:
+            The language name as a string (e.g., "English", "Bahasa Indonesia"),
+            or None if the language cannot be detected.  Also returns None if the
+            input text is empty.
+
+        Raises:
+            langdetect.lang_detect_exception.LangDetectException: If language
+            detection fails.
+        """
+        if not text:
+            return None
+
+        try:
+            language_code = detect(text)
+            language_names = {
+                'en': 'English',
+                'id': 'Bahasa Indonesia',
+                'fr': 'French',
+                'de': 'German',
+                'es': 'Spanish',
+                'it': 'Italian',
+                'ja': 'Japanese',
+                'ko': 'Korean',
+                'pt': 'Portuguese',
+                'nl': 'Dutch',
+                'ru': 'Russian',
+                'ar': 'Arabic',
+                'zh-cn': 'Simplified Chinese',
+                'zh-tw': 'Traditional Chinese'
+
+                # Add more languages as needed
+            }
+            return language_names.get(language_code)
+        except Exception as e:  # Catching the generic exception
+            print(f"Language detection failed: {e}")
+            return None
 
     
     def _setup_rag_corpus(self, display_name: str, paths: List[str]):
@@ -190,44 +238,58 @@ class CANDY:
             )
         )
 
-    def generate_response(self, user_name: str, user_input: str, history: List[Dict]) -> Dict:
-        chat_history = []
+    def generate_response(self, user_name: str, user_input: str, session_id) -> Dict:
+        # chat_history = []
+        start_time = time.perf_counter()
+        # if session_id key exist in self.sessions
+        if self.sessions[session_id] is not None:
+            self.sessions[session_id] = self.model.start_chat()
+            
+        
         # print("History: ", history)
-        for item in history:
-            item_dict = item.dict()
-            if item_dict["role"] == "user":
-                chat_history.append(
-                    Content(role="user", parts=[Part.from_text(item_dict["message"])])
-                )
-            else:
-                chat_history.append(
-                    Content(role="model", parts=[Part.from_text(item_dict["message"])])
-                )
-        #
-        chat_history = chat_history[::-1]
+        # for item in history:
+        #     item_dict = item.dict()
+        #     if item_dict["role"] == "user":
+        #         chat_history.append(
+        #             Content(role="user", parts=[Part.from_text(item_dict["message"])])
+        #         )
+        #     else:
+        #         chat_history.append(
+        #             Content(role="model", parts=[Part.from_text(item_dict["message"])])
+        #         )
+        # #
+        # chat_history = chat_history[::-1]
+
 
         # Add the new user input to the chat history
 
         
-
-        print("User Current Message:", user_input)
-        print("User History:", chat_history)
+       
+        # print("User Current Message:", user_input)
+        # print("User History:", chat_history)
+        
     
         # chat = self.model.start_chat(
         #     history = chat_history
         # )
 
-        start_time = time.perf_counter()
 
         try:
             # response = chat.send_message(parts)
             contents = f"# User's Current Message:\n {user_input}\n"
             if user_name is not "User":
                 contents = f"# User Name: \n {user_name}\n" + contents
-
-            contents = contents + "\n\n # Chat History" + str(history)
+                
+            try:
+                language = self._detect_language(user_input)
+                print("User Language", language)
+                contents = contents + f"Language: {language}"
+            except:
+                print("No language")
+            # contents = contents + "\n\n # Chat History" + str(history)
             print("Contents: ", contents)
-            response = self.model.generate_content(contents=contents)
+            # response = self.model.generate_content(contents=contents)
+            response = self.sessions[session_id].send_message(contents)
             print ("Contents: ", contents)
             print ("Response: ", response)
             response_text = response.text

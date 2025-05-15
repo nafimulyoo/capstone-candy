@@ -113,7 +113,7 @@ class HistoryItem(BaseModel):
 class ChatRequest(BaseModel):
     name: str
     message: str
-    history: List[HistoryItem]
+    session_id: str
 
 class ChatResponse(BaseModel):
     response: str

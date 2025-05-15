@@ -282,11 +282,7 @@ export default function ChatbotPage() {
         body: JSON.stringify({
           name: contactInfo.name ? contactInfo.name : "User",
           message: formattedMessage,
-          history: messages.map((msg) => ({
-            role: msg.role,
-            message: msg.message,
-            timestamp: msg.timestamp,
-          })),
+          session_id: sessionId
         }),
       });
 

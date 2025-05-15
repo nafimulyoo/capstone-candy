@@ -4,3 +4,4 @@ vertexai
 google-cloud-aiplatform
 firebase-admin
 python-dotenv
+langdetect

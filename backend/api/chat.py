@@ -8,6 +8,7 @@ from model.model import CANDY
 
 router = APIRouter()
 
+
 # def save_chat_to_firestore(metadata, messages):
 #     chats_ref = db.collection("chat-session")
 #     chat_ref = chats_ref.document()
@@ -50,7 +51,7 @@ candy = CANDY()
 @router.post("/ask", response_model=ChatResponse)
 def ask_chatbot(request: ChatRequest):
 
-    result = candy.generate_response(request.name, request.message, request.history)
+    result = candy.generate_response(request.name, request.message, request.session_id)
     # print("Result:", result)
     return ChatResponse(
         response=result["message"],
