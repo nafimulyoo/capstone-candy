@@ -10,15 +10,20 @@ from firebase_config import db
 RESPONSE_SCHEMA = {
     "type": "OBJECT",
     "properties": {
+        "language_reasoning": {
+            "type": "STRING",
+            "description": "The language of \"# User's Current Message\", and the reasoning behind the chatbot's response language.",
+            "nullable": True,
+        },
         "message": {
             "type": "STRING",
             "description": "The response message from the chatbot.",
-            "nullable": True,
+            "nullable": False,
         },
         "link_to_contact": {
             "type": "BOOLEAN",
             "description": "Indicates whether to link to a contact page.",
-            "nullable": True,
+            "nullable": False,
         },
     },
     "required": ["message", "link_to_contact"],
@@ -49,7 +54,7 @@ SYSTEM_INSTRUCTION = """
     *   **Greeting:** Always start with a polite greeting.
     *   **Personalization:** Use the user's name if provided. Remember all user-provided details (e.g., name, company, needs, industry), actively reuse them across the conversation to personalize answers, and always refer back to the user's name and company where relevant
     *   **Tone:** Maintain a professional and helpful tone.
-    *   **Language:** Use Bahasa Indonesia unless the question is explicitly in English, then respond in English.
+    *   **Language:** Mirror the language of \"# User's Current Message\" at every turn. If the user uses English, respond in English. If the user uses Bahasa Indonesia, respond in Bahasa Indonesia. 
     *   **Advertising:** Always provide a positive and informative response about Astra Digital's services and solutions. Avoid using overly promotional language or making exaggerated claims. Always provide accurate and relevant information about Astra Digital's services and solutions.
     *   **Out-of-Scope:** Politely decline to answer questions that are unrelated to Astra Digital, its services, or its expertise.
     *   **"Hubungi Kami":** When appropriate, offer a "Hubungi Kami" (Contact Us) option to connect the user with a human representative for more personalized assistance. And include set link_to_contact to true.
@@ -59,15 +64,17 @@ SYSTEM_INSTRUCTION = """
     CANDY should respond in a structured format, including a message and a link_to_contact field. The message should contain the answer to the user's question, and the link_to_contact field should indicate whether you can't provide the answer, you don't know the answer, you don't have the data, or user should be directed to a human representative for further assistance.
 
     ### Examples:
-    **Example Input:** "Apa itu Astra Digital?"
+    **Example Input:** "What is Astra Digital?"
     **Example Output:**
     {
-        "message": "Astra Digital adalah anak perusahaan Astra International yang fokus pada transformasi digital dan inovasi teknologi.",
+        "language_reasoning": "The \"# User's Current Message\" is in English, so I responded in the same language (English).",
+        "message": "Astra Digital is a digital technology company that provides innovative solutions to help businesses transform and thrive in the digital age. We offer a range of services, including digital strategy, data analytics, cloud computing, and more.",
         "link_to_contact": false
     }
     **Example Input:** "Saya ingin tahu lebih banyak tentang layanan Astra Digital, secara spesifiknya tentang biaya jasa dan harga produk yang ditawarkan."
     **Example Output:**
     {
+        "language_reasoning": "The \"# User's Current Message\" is in Bahasa Indonesia, so I responded in the same language (Bahasa Indonesia).",
         "message": "Maaf, saya tidak dapat memberikan informasi tentang biaya jasa dan harga produk. Untuk informasi lebih lanjut, silakan hubungi tim kami melalui halaman 'Hubungi Kami'.",
         "link_to_contact": true
     }
@@ -203,7 +210,7 @@ class CANDY:
 
         
 
-        print("User Message:", user_input)
+        print("User Current Message:", user_input)
         print("User History:", chat_history)
     
         # chat = self.model.start_chat(
@@ -214,11 +221,11 @@ class CANDY:
 
         try:
             # response = chat.send_message(parts)
-            contents = f"User Message: {user_input}\n"
+            contents = f"# User's Current Message:\n {user_input}\n"
             if user_name is not "User":
-                contents = f"User Name: {user_name}\n" + contents
+                contents = f"# User Name: \n {user_name}\n" + contents
 
-            contents = contents + "\n\n" + str(history)
+            contents = contents + "\n\n # Chat History" + str(history)
             print("Contents: ", contents)
             response = self.model.generate_content(contents=contents)
             print ("Contents: ", contents)

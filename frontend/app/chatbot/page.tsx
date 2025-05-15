@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +36,8 @@ import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Header from "@/components/header";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 interface ChatResponse {
   response: string;
@@ -116,6 +116,15 @@ export default function ChatbotPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const suggestedQuestions = [
+    "Apa saja layanan yang ditawarkan Astra Digital?",
+    "Ceritakan tentang Digital Intelligence",
+    "Apa itu Data Product?",
+    "Bagaimana cara menghubungi tim Astra Digital?",
+    "Apa keunggulan Astra Digital dibandingkan kompetitor?",
+    "Siapa saja klien Astra Digital?",
+  ];
 
   useEffect(() => {
     const savedChat = localStorage.getItem("chatHistory");
@@ -411,24 +420,6 @@ export default function ChatbotPage() {
     );
   };
 
-  const containsContactUsMessage = (message: string) => {
-    return (
-      message.toLowerCase().includes("hubungi tim kami") ||
-      message.toLowerCase().includes("silakan hubungi") ||
-      message.toLowerCase().includes("informasi lebih lanjut") ||
-      message.toLowerCase().includes("informasi yang lebih spesifik")
-    );
-  };
-
-  const suggestedQuestions = [
-    "Apa saja layanan yang ditawarkan Astra Digital?",
-    "Ceritakan tentang Digital Intelligence",
-    "Apa itu Data Product?",
-    "Bagaimana cara menghubungi tim Astra Digital?",
-    "Apa keunggulan Astra Digital dibandingkan kompetitor?",
-    "Siapa saja klien Astra Digital?",
-  ];
-
   const CheckCircle = ({ size = 24, ...props }: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -446,6 +437,10 @@ export default function ChatbotPage() {
       <polyline points="22 4 12 14.01 9 11.01"></polyline>
     </svg>
   );
+
+  const handleSuggestedQuestionClick = (question: string) => {
+    setInput(question);
+  };
 
   return (
     <>
@@ -493,22 +488,20 @@ export default function ChatbotPage() {
                   const displayMessage =
                     isLongMessage && !message.isExpanded
                       ? message.message.substring(0, MAX_MESSAGE_LENGTH) +
-                        "..."
+                      "..."
                       : message.message;
 
                   return (
                     <div
                       key={index}
-                      className={`mb-4 flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
-                      }`}
+                      className={`mb-4 flex ${message.role === "user" ? "justify-end" : "justify-start"
+                        }`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
-                          message.role === "user"
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                        className={`max-w-[80%] rounded-lg p-3 ${message.role === "user"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-800"
+                          }`}
                       >
                         <div className="flex items-center mb-1">
                           {message.role === "model" ? (
@@ -520,8 +513,8 @@ export default function ChatbotPage() {
                             {message.role === "model"
                               ? "CANDY"
                               : anonymous
-                              ? "Anda"
-                              : contactInfo.name}
+                                ? "Anda"
+                                : contactInfo.name}
                           </span>
                         </div>
 
@@ -583,11 +576,10 @@ export default function ChatbotPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className={`p-1 h-6 w-6 rounded-full ${
-                                message.feedback === "positive"
-                                  ? "bg-green-100 text-green-600"
-                                  : "text-gray-400 hover:text-green-600"
-                              }`}
+                              className={`p-1 h-6 w-6 rounded-full ${message.feedback === "positive"
+                                ? "bg-green-100 text-green-600"
+                                : "text-gray-400 hover:text-green-600"
+                                }`}
                               onClick={() => handleFeedback(index, "positive")}
                             >
                               <ThumbsUp className="h-3 w-3" />
@@ -596,11 +588,10 @@ export default function ChatbotPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className={`p-1 h-6 w-6 rounded-full ml-1 ${
-                                message.feedback === "negative"
-                                  ? "bg-red-100 text-red-600"
-                                  : "text-gray-400 hover:text-red-600"
-                              }`}
+                              className={`p-1 h-6 w-6 rounded-full ml-1 ${message.feedback === "negative"
+                                ? "bg-red-100 text-red-600"
+                                : "text-gray-400 hover:text-red-600"
+                                }`}
                               onClick={() => handleFeedback(index, "negative")}
                             >
                               <ThumbsDown className="h-3 w-3" />
@@ -642,16 +633,16 @@ export default function ChatbotPage() {
                   <div className="mb-2 p-4 ">
                     <div className="flex flex-wrap gap-2">
                       {suggestedQuestions.map((question, index) => (
-                        <button
+                        <Button
                           key={index}
+                          variant="outline"
+                          size="sm"
                           className="text-sm bg-white border border-gray-200 rounded-full px-3 py-1 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                          onClick={() => {
-                            setInput(question);
-                          }}
-                          type="submit"
+                          onClick={() => handleSuggestedQuestionClick(question)}
+                          type="button" // Changed to "button" to prevent form submission on Enter
                         >
                           {question}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -680,110 +671,130 @@ export default function ChatbotPage() {
 
         {/* Contact Form Dialog */}
         <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Informasi Kontak</DialogTitle>
-              <DialogDescription>
-                Silakan isi informasi kontak Anda untuk melanjutkan percakapan
-                dengan CANDY.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nama*
-                </Label>
-                <Input
-                  id="name"
-                  value={contactInfo.name}
-                  onChange={(e) =>
-                    setContactInfo({ ...contactInfo, name: e.target.value })
-                  }
-                  className="col-span-3"
-                  disabled={anonymous}
-                />
-                {errors.name && (
-                  <p className="col-span-3 col-start-2 text-sm text-red-500">
-                    {errors.name}
-                  </p>
-                )}
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email*
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={contactInfo.email}
-                  onChange={(e) =>
-                    setContactInfo({ ...contactInfo, email: e.target.value })
-                  }
-                  className="col-span-3"
-                  disabled={anonymous}
-                />
-                {errors.contact && (
-                  <p className="col-span-3 col-start-2 text-sm text-red-500">
-                    {errors.contact}
-                  </p>
-                )}
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Telepon
-                </Label>
-                <Input
-                  id="phone"
-                  value={contactInfo.phone}
-                  onChange={(e) =>
-                    setContactInfo({ ...contactInfo, phone: e.target.value })
-                  }
-                  className="col-span-3"
-                  disabled={anonymous}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <div className="col-span-4 flex items-center space-x-2">
-                  <Checkbox
-                    id="anonymous"
-                    checked={anonymous}
-                    onCheckedChange={(checked) => {
-                      setAnonymous(checked === true);
-                      if (checked) {
-                        setContactInfo({ name: "", email: "", phone: "" });
-                        setErrors({ name: "", contact: "" });
-                      }
-                    }}
+          <form>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Informasi Kontak</DialogTitle>
+                <DialogDescription>
+                  Silakan isi informasi kontak Anda untuk melanjutkan percakapan
+                  dengan CANDY.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Nama*
+                  </Label>
+                  <Input
+                    id="name"
+                    value={contactInfo.name}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, name: e.target.value })
+                    }
+                    className="col-span-3"
+                    disabled={anonymous}
                   />
-                  <label
-                    htmlFor="anonymous"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Saya ingin bertanya secara anonim
-                  </label>
+                  {errors.name && (
+                    <p className="col-span-3 col-start-2 text-sm text-red-500">
+                      {errors.name}
+                    </p>
+                  )}
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email*
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={contactInfo.email}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
+                    className="col-span-3"
+                    disabled={anonymous}
+                  />
+                  {errors.contact && (
+                    <p className="col-span-3 col-start-2 text-sm text-red-500">
+                      {errors.contact}
+                    </p>
+                  )}
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">
+                    Telepon
+                  </Label>
+                  <Input
+                    id="phone"
+                    value={contactInfo.phone}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, phone: e.target.value })
+                    }
+                    className="col-span-3"
+                    disabled={anonymous}
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <div className="col-span-4 flex items-center space-x-2">
+                    <Checkbox
+                      id="anonymous"
+                      checked={anonymous}
+                      onCheckedChange={(checked) => {
+                        setAnonymous(checked === true);
+                        if (checked) {
+                          setContactInfo({ name: "", email: "", phone: "" });
+                          setErrors({ name: "", contact: "" });
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="anonymous"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Saya ingin bertanya secara anonim
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
-            <DialogFooter className="sm:justify-between">
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Batal
-                </Button>
-              </DialogClose>
-              <div className="flex gap-2">
-                {!anonymous && (
-                  <Button type="button" onClick={handleContactSubmit}>
-                    Lanjutkan
+              <DialogFooter className="sm:justify-between">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Batal
                   </Button>
-                )}
-                {anonymous && (
-                  <Button type="button" onClick={handleAnonymousChat}>
-                    Lanjutkan sebagai Anonim
-                  </Button>
-                )}
-              </div>
-            </DialogFooter>
-          </DialogContent>
+                </DialogClose>
+                <div className="flex gap-2">
+                  {!anonymous && (
+                    <Button type="button" onClick={
+                      handleContactSubmit
+                    }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleContactSubmit();
+                        }
+                      }
+                      }>
+
+                      Lanjutkan
+                    </Button>
+                  )}
+                  {anonymous && (
+                    <Button type="button" onClick={
+                      handleAnonymousChat
+                    }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleContactSubmit();
+                        }
+                      }
+                      }>
+                      Lanjutkan sebagai Anonim
+                    </Button>
+                  )}
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </form>
         </Dialog>
 
         {/* Hubungi Kami Dialog */}
