@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 import time
 from firebase_config import db
 from schemas import ChatRequest, ChatResponse, ChatSaveRequest
-from model.model import CANDY
+from model.model import candy
 
 router = APIRouter()
 
@@ -47,7 +47,8 @@ def save_chat_to_firestore(session_id, metadata, messages):
     print(f"Chat saved with ID: {chat_ref.id}")
     return chat_ref.id
 
-candy = CANDY()
+
+
 @router.post("/ask", response_model=ChatResponse)
 def ask_chatbot(request: ChatRequest):
 
@@ -78,7 +79,7 @@ def save_chat(request: ChatSaveRequest):
 
         print("Messages:", messages)
         chat_id = save_chat_to_firestore(session_id, metadata, messages)
-
+        # remove the session from memory
         return {"message": "Chat saved"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

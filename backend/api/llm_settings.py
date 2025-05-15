@@ -3,6 +3,8 @@ from fastapi import Depends, APIRouter, HTTPException
 from firebase_config import db
 import api.auth as auth
 from schemas import LLMSettings
+from model.model import candy
+import time
 
 router = APIRouter()
 
@@ -40,6 +42,8 @@ ref = db.collection("llm_settings").document("1uZu27qUE5KxoMRhoQX6")
             # current_settings.update(json.load(f))
 
 
+last_file_sync_time = time.time()
+
 # Endpoints
 @router.get("", response_model=dict)
 def get_settings(user=Depends(auth.validate_token)):
@@ -54,7 +58,11 @@ def get_settings(user=Depends(auth.validate_token)):
         "temperature": current_settings["temperature"],
         "top_k": current_settings["top_k"],
         "max_token": current_settings["max_token"],
+        "last_file_sync_time": last_file_sync_time
     }
+
+
+
 
 @router.put("")
 def update_settings(settings: LLMSettings, user=Depends(auth.validate_token)):
@@ -65,6 +73,10 @@ def update_settings(settings: LLMSettings, user=Depends(auth.validate_token)):
 
         # Simpan ke Firestore
         ref.set(updates, merge=True)
+        candy.sync_settings()
+        
+        global last_file_sync_time
+        last_file_sync_time = time.time()
 
         return {"message": "Settings updated successfully"}
     except ValueError as e:

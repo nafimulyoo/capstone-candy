@@ -61,7 +61,7 @@ SYSTEM_INSTRUCTION = """
     *   **Advertising:** Always provide a positive and informative response about Astra Digital's services and solutions. Avoid using overly promotional language or making exaggerated claims. Always provide accurate and relevant information about Astra Digital's services and solutions.
     *   **Out-of-Scope:** Politely decline to answer questions that are unrelated to Astra Digital, its services, or its expertise.
     *   **Always include relevant follow-up for initiate further conversation and keep user engagement**
-    *   **Utilize Markdown formatting (bold, italic, bullet points for list, number points for sequence)**
+    *   **Utilize Markdown formatting (bold text for headings and higlight, italic for jargon and terms and keywords, number points for sequenced list and unsequenced list, dont use bullet points**
     *   **"Hubungi Kami":** When appropriate, offer a "Hubungi Kami" (Contact Us) option to connect the user with a human representative for more personalized assistance. And include set link_to_contact to true.
 
     ## Answer Format:
@@ -148,7 +148,7 @@ class CANDY:
                 response_schema=RESPONSE_SCHEMA
             )
         )
-    
+
     
     def _detect_language(text):
         """
@@ -194,6 +194,56 @@ class CANDY:
             print(f"Language detection failed: {e}")
             return None
 
+    def sync_settings(self):
+        ref = db.collection("llm_settings").document("1uZu27qUE5KxoMRhoQX6")
+        current_settings = ref.get().to_dict()
+
+        try:
+            # raise Exception("Force to use default settings")
+            self.generation_config = {
+                "temperature": current_settings["temperature"],
+                "top_k": current_settings["top_k"],
+                "max_output_tokens": current_settings["max_token"],
+                "top_p": 0.8,
+            }
+            self.system_instruction = current_settings["prompt_template"]
+            self.model_type = current_settings["model"]
+
+        except:
+            self.generation_config = {
+                "temperature": 0.3,
+                "top_k": 20,
+                "max_output_tokens": 512,
+                "top_p": 0.8,
+            }
+            self.system_instruction = SYSTEM_INSTRUCTION
+            self.model_type = "gemini-2.5-flash-preview-04-17"
+
+
+        self.rag_config = {
+            "top_k": 20,
+            "vector_distance_threshold": 0.4,
+            "chunk_size": 1024,
+            "chunk_overlap": 200
+        }
+
+        corpus_display_name = "test_corpus"
+        file_paths = ["https://drive.google.com/drive/folders/1tAasvudukCy0P1frrz-v7UZIKAe7TSIJ"]
+
+        self.rag_corpus = self._setup_rag_corpus(corpus_display_name, file_paths)
+        self.rag_tool = self._create_rag_tool()
+
+        self.model = GenerativeModel(
+            model_name=self.model_type,
+            system_instruction=self.system_instruction,
+            tools=[self.rag_tool],
+           
+            generation_config=GenerationConfig(
+                response_mime_type="application/json",
+                response_schema=RESPONSE_SCHEMA
+            )
+        )
+        
     
     def _setup_rag_corpus(self, display_name: str, paths: List[str]):
         embedding_model_config = rag.RagEmbeddingModelConfig(
@@ -242,8 +292,17 @@ class CANDY:
         # chat_history = []
         start_time = time.perf_counter()
         # if session_id key exist in self.sessions
-        if self.sessions[session_id] is not None:
-            self.sessions[session_id] = self.model.start_chat()
+        
+        for key in list(self.sessions.keys()):
+            if time.time() - self.sessions[key]["timestamp"] > 3600:
+                del self.sessions[key]
+        
+        if session_id not in self.sessions:
+            self.sessions[session_id] = {
+                "chat": self.model.start_chat(),
+                "timestamp": time.time(),
+            }
+        
             
         
         # print("History: ", history)
@@ -277,7 +336,7 @@ class CANDY:
         try:
             # response = chat.send_message(parts)
             contents = f"# User's Current Message:\n {user_input}\n"
-            if user_name is not "User":
+            if user_name != "User":
                 contents = f"# User Name: \n {user_name}\n" + contents
                 
             try:
@@ -289,7 +348,7 @@ class CANDY:
             # contents = contents + "\n\n # Chat History" + str(history)
             print("Contents: ", contents)
             # response = self.model.generate_content(contents=contents)
-            response = self.sessions[session_id].send_message(contents)
+            response = self.sessions[session_id]["chat"].send_message(contents)
             print ("Contents: ", contents)
             print ("Response: ", response)
             response_text = response.text
@@ -339,3 +398,5 @@ class CANDY:
 #         "timestamp": "2023-10-01T12:00:00Z"
 #     }
 # ])
+
+candy = CANDY()

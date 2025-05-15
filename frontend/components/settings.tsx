@@ -49,6 +49,21 @@ export default function Settings() {
     const [maxTokens, setMaxTokens] = useState([0])
     const [temperature, setTemperature] = useState([0])
     const [topK, setTopK] = useState([0])
+    const [lastFileSync, setLastFileSync] = useState("File might be out of sync, please save settings to sync the file with the server.")
+
+    
+    function formatTimestamp(timestamp: any) {
+    const date = new Date(timestamp * 1000); // Multiply by 1000 because JS uses milliseconds
+
+    const day = String(date.getDate()).padStart(2, "0"); // Ensure two-digit day
+    const month = date.toLocaleString("default", { month: "long" }); // Full month name
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0"); // Ensure two-digit hours
+    const minutes = String(date.getMinutes()).padStart(2, "0"); // Ensure two-digit minutes
+    const seconds = String(date.getSeconds()).padStart(2, "0"); // Ensure two-digit seconds
+
+    return `${day} ${month} ${year}, ${hours}:${minutes}:${seconds}`;
+    }
 
 
     // Recommended default values based on common practices and initial code's fallback
@@ -129,6 +144,8 @@ CANDY should respond in a structured format, including a message and a link_to_c
                     setMaxTokens([RECOMMENDED_DEFAULTS.max_token]);
                     setTemperature([RECOMMENDED_DEFAULTS.temperature]);
                     setTopK([RECOMMENDED_DEFAULTS.top_k]);
+
+
                     // throw new Error("Failed to fetch settings")
                 } else {
                     const data = await response.json()
@@ -137,6 +154,7 @@ CANDY should respond in a structured format, including a message and a link_to_c
                     setMaxTokens([data.max_token])
                     setTemperature([data.temperature])
                     setTopK([data.top_k])
+                    setLastFileSync(`Last sync: ${formatTimestamp(data.last_file_sync_time)}. Please save to synchronize the files`)
                 }
 
             } catch (error) {
@@ -347,6 +365,9 @@ CANDY should respond in a structured format, including a message and a link_to_c
                                 <Folder className="h-5 w-5 text-gray-500 mr-2" />
                                 <span className="font-medium">Context Files</span>
                             </div>
+                            <p>
+                                <span className="text-sm text-gray-500">{lastFileSync}</span>
+                            </p>
                             <Link href="https://drive.google.com/drive/folders/1tAasvudukCy0P1frrz-v7UZIKAe7TSIJ?usp=sharing">
                                 <Button variant="outline" size="sm">
                                     <Folder className="h-4 w-4 mr-2" /> Edit Files
